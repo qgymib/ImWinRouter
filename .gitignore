@@ -1,0 +1,6 @@
+# Tempory build directory
+/build*
+/cmake-build-*
+
+# JetBrains
+/.idea
