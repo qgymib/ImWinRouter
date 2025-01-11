@@ -26,8 +26,14 @@ IWR_I18N_LOCALE_DECLARE(zh_CN) = {
 .preferences =
 "首选项",
 
+.router =
+"路由表",
+
 .settings =
 "设置",
+
+.tools =
+"工具",
 
 .translations =
 "翻译",

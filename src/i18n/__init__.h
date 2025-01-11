@@ -14,7 +14,9 @@
     xx(localization)    \
     xx(name)            \
     xx(preferences)     \
+    xx(router)          \
     xx(settings)        \
+    xx(tools)           \
     xx(translations)    \
     xx(version)
 // clang-format on

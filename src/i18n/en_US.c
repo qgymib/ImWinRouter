@@ -26,8 +26,14 @@ IWR_I18N_LOCALE_DECLARE(en_US) = {
 .preferences =
 "Preferences",
 
+.router =
+"Router",
+
 .settings =
 "Settings",
+
+.tools =
+"Tools",
 
 .translations =
 "Translations",

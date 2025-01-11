@@ -143,8 +143,8 @@ static void s_widget_about_draw()
 
     s_about->window_title->build(T->about);
 
-    const int   flags = ImGuiWindowFlags_AlwaysAutoResize;
     const char* title = s_about->window_title->title();
+    const int   flags = ImGuiWindowFlags_AlwaysAutoResize;
     if (ImGui::Begin(title, &s_about->show_window, flags))
     {
         s_widget_about_show_window();
