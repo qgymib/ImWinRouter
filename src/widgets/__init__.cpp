@@ -1,8 +1,8 @@
-#include "utils/defines.h"
 #include "__init__.hpp"
 
 static const iwr::widget_t* s_widgets[] = {
     &iwr::widget_preferences,
+    &iwr::widget_debug,
     &iwr::widget_about,
 };
 

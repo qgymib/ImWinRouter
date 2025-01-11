@@ -41,6 +41,7 @@ void widget_exit();
 void widget_draw();
 
 extern const widget_t widget_preferences;
+extern const widget_t widget_debug;
 extern const widget_t widget_about;
 
 }

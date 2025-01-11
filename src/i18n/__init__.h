@@ -7,6 +7,7 @@
 // clang-format off
 #define IWR_I18N_STRING_TABLE(xx)    \
     xx(about)           \
+    xx(debug)           \
     xx(generic)         \
     xx(help)            \
     xx(homepage)        \

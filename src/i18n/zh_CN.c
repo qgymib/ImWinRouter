@@ -5,6 +5,9 @@ IWR_I18N_LOCALE_DECLARE(zh_CN) = {
 .about =
 "关于",
 
+.debug =
+"调试",
+
 .generic =
 "通用",
 

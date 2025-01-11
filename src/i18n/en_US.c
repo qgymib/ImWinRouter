@@ -5,6 +5,9 @@ IWR_I18N_LOCALE_DECLARE(en_US) = {
 .about =
 "About",
 
+.debug =
+"Debug",
+
 .generic =
 "Generic",
 
