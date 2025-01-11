@@ -40,3 +40,7 @@ target_sources(imgui
         ${IMGUI_ROOT}/backends/imgui_impl_win32.cpp
 )
 target_link_libraries(imgui PRIVATE d3d9)
+
+if (MINGW)
+    target_link_libraries(imgui PRIVATE dwmapi)
+endif ()
