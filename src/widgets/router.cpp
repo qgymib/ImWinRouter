@@ -137,10 +137,10 @@ static void s_widget_router_show_ip(const char* id, const RouteVec& vec)
                 ImGui::Text("%s", item.Gateway.c_str());
 
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%u", item.Interface);
+                ImGui::Text("%lu", item.Interface);
 
                 ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%u", item.Metric);
+                ImGui::Text("%lu", item.Metric);
 
                 ImGui::PopID();
             }

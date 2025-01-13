@@ -8,7 +8,8 @@ typedef std::map<std::wstring, std::wstring> FontMap;
 
 static std::wstring GetDefaultSystemFontName()
 {
-    NONCLIENTMETRICSW ncm = { 0 };
+    NONCLIENTMETRICSW ncm;
+    ZeroMemory(&ncm, sizeof(ncm));
     ncm.cbSize = sizeof(NONCLIENTMETRICSW);
 
     // Get the system's default GUI font
