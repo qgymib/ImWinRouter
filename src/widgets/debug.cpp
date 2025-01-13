@@ -4,6 +4,7 @@
 #include "utils/ip.hpp"
 #include "utils/title_builder.hpp"
 #include "__init__.hpp"
+#include "notify.hpp"
 
 typedef struct widget_debug
 {
@@ -169,11 +170,25 @@ static void s_widget_debug_ip_forward()
     }
 }
 
+static void s_widget_debug_notification()
+{
+    static char title[4096];
+    ImGui::InputText("Title", title, sizeof(title));
+    static char message[4096];
+    ImGui::InputTextMultiline("Message", message, sizeof(message));
+
+    if (ImGui::Button("Post"))
+    {
+        iwr::NotifyDialog(title, message);
+    }
+}
+
 static void s_widget_debug_show()
 {
     static iwr::UiTab tabs[] = {
-        { "IpInterface", s_widget_debug_ip_interface },
-        { "IpForward",   s_widget_debug_ip_forward   },
+        { "IpInterface",  s_widget_debug_ip_interface },
+        { "IpForward",    s_widget_debug_ip_forward   },
+        { "Notification", s_widget_debug_notification },
     };
 
     if (ImGui::BeginTabBar("debug_tabs"))

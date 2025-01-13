@@ -13,6 +13,7 @@
     xx(homepage)        \
     xx(localization)    \
     xx(name)            \
+    xx(notification)    \
     xx(preferences)     \
     xx(refresh)         \
     xx(router)          \

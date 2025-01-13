@@ -23,6 +23,9 @@ IWR_I18N_LOCALE_DECLARE(zh_CN) = {
 .name =
 "名称",
 
+.notification =
+"通知",
+
 .preferences =
 "首选项",
 

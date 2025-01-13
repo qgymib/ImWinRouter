@@ -6,6 +6,7 @@ static const iwr::widget_t* s_widgets[] = {
     &iwr::widget_debug,
     &iwr::widget_demo,
     &iwr::widget_about,
+    &iwr::widget_notify,
 };
 
 void iwr::widget_init()
