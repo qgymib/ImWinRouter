@@ -4,6 +4,19 @@
 namespace iwr
 {
 
+struct UiTab
+{
+    /**
+     * @brief The name of tab.
+     */
+    const char* name;
+
+    /**
+     * @brief Draw function.
+     */
+    void (*draw)();
+};
+
 /**
  * @brief Widget type.
  */
@@ -45,6 +58,6 @@ extern const widget_t widget_debug;
 extern const widget_t widget_preferences;
 extern const widget_t widget_router;
 
-}
+} // namespace iwr
 
 #endif // WIDGETS_INIT_HPP

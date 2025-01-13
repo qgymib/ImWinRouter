@@ -28,6 +28,7 @@ add_executable(${PROJECT_NAME}
     "src/widgets/preferences.cpp"
     "src/widgets/router.cpp"
     "src/utils/font.cpp"
+    "src/utils/ip.cpp"
     "src/utils/string.cpp"
     "src/utils/title_builder.cpp"
     "src/main.cpp"

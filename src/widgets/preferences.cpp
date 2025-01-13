@@ -13,19 +13,6 @@ typedef struct widget_preferences
     iwr::TitleBuilder* window_title;
 } widget_preferences_t;
 
-typedef struct preference_tab
-{
-    /**
-     * @brief The name of tab.
-     */
-    const char* name;
-
-    /**
-     * @brief Draw function.
-     */
-    void (*draw)();
-} preference_tab_t;
-
 static widget_preferences_t* s_preferences = nullptr;
 
 widget_preferences::widget_preferences()
@@ -69,7 +56,7 @@ static void s_widget_preferences_show_generic()
 
 static void s_widget_preferences_show()
 {
-    const preference_tab_t tabs[] = {
+    const iwr::UiTab tabs[] = {
         { T->generic, s_widget_preferences_show_generic },
     };
 
@@ -77,7 +64,7 @@ static void s_widget_preferences_show()
     {
         for (size_t i = 0; i < IM_ARRAYSIZE(tabs); i++)
         {
-            const preference_tab_t* tab = &tabs[i];
+            auto tab = &tabs[i];
             if (ImGui::BeginTabItem(tab->name))
             {
                 tab->draw();
