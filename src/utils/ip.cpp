@@ -72,6 +72,7 @@ iwr::IpForwardVec iwr::GetIpForwardVec()
         IpForward item = {
             info->DestinationPrefix.Prefix.si_family,
             dest,
+            info->DestinationPrefix.PrefixLength,
             gateway,
             info->InterfaceLuid.Value,
             info->InterfaceIndex,

@@ -63,27 +63,27 @@ static void s_widget_debug_ip_interface()
         ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
     if (ImGui::BeginTable(table_id, 6, table_flags))
     {
-        ImGui::TableSetupColumn("family");
-        ImGui::TableSetupColumn("Luid");
-        ImGui::TableSetupColumn("Index");
+        ImGui::TableSetupColumn("Family");
+        ImGui::TableSetupColumn("InterfaceLuid");
+        ImGui::TableSetupColumn("InterfaceIndex");
         ImGui::TableSetupColumn("Metric");
         ImGui::TableSetupColumn("Connected");
         ImGui::TableSetupColumn("DisableDefaultRoutes");
         ImGui::TableHeadersRow();
 
         ImGuiListClipper clipper;
-        clipper.Begin((int)s_debug->ip_interfaces.size());
+        clipper.Begin(static_cast<int>(s_debug->ip_interfaces.size()));
 
         while (clipper.Step())
         {
             for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
             {
                 auto& item = s_debug->ip_interfaces[i];
-                ImGui::PushID(item.InterfaceLuid);
+                ImGui::PushID(reinterpret_cast<void*>(item.InterfaceLuid));
                 ImGui::TableNextRow();
 
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%d", item.family);
+                ImGui::Text("%d", item.Family);
 
                 ImGui::TableSetColumnIndex(1);
                 ImGui::Text("%" PRIu64, item.InterfaceLuid);
@@ -123,43 +123,47 @@ static void s_widget_debug_ip_forward()
     const char* table_id = "debug_ip_forward";
     const int   table_flags =
         ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
-    if (ImGui::BeginTable(table_id, 6, table_flags))
+    if (ImGui::BeginTable(table_id, 7, table_flags))
     {
-        ImGui::TableSetupColumn("family");
+        ImGui::TableSetupColumn("Family");
         ImGui::TableSetupColumn("Destination");
-        ImGui::TableSetupColumn("Gateway");
+        ImGui::TableSetupColumn("PrefixLength");
+        ImGui::TableSetupColumn("NextHop");
         ImGui::TableSetupColumn("InterfaceLuid");
         ImGui::TableSetupColumn("InterfaceIndex");
         ImGui::TableSetupColumn("Metric");
         ImGui::TableHeadersRow();
 
         ImGuiListClipper clipper;
-        clipper.Begin((int)s_debug->ip_forwards.size());
+        clipper.Begin(static_cast<int>(s_debug->ip_forwards.size()));
 
         while (clipper.Step())
         {
             for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
             {
                 auto& item = s_debug->ip_forwards[i];
-                ImGui::PushID(item.InterfaceLuid);
+                ImGui::PushID(reinterpret_cast<void*>(item.InterfaceLuid));
                 ImGui::TableNextRow();
 
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%d", item.family);
+                ImGui::Text("%d", item.Family);
 
                 ImGui::TableSetColumnIndex(1);
                 ImGui::Text("%s", item.Destination.c_str());
 
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%s", item.Gateway.c_str());
+                ImGui::Text("%u", item.PrefixLength);
 
                 ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%" PRIu64, item.InterfaceLuid);
+                ImGui::Text("%s", item.NextHop.c_str());
 
                 ImGui::TableSetColumnIndex(4);
-                ImGui::Text("%" PRIu64, item.InterfaceIndex);
+                ImGui::Text("%" PRIu64, item.InterfaceLuid);
 
                 ImGui::TableSetColumnIndex(5);
+                ImGui::Text("%" PRIu64, item.InterfaceIndex);
+
+                ImGui::TableSetColumnIndex(6);
                 ImGui::Text("%" PRIu32, item.Metric);
 
                 ImGui::PopID();
@@ -186,8 +190,8 @@ static void s_widget_debug_notification()
 static void s_widget_debug_show()
 {
     static iwr::UiTab tabs[] = {
-        { "IpInterface",  s_widget_debug_ip_interface },
         { "IpForward",    s_widget_debug_ip_forward   },
+        { "IpInterface",  s_widget_debug_ip_interface },
         { "Notification", s_widget_debug_notification },
     };
 

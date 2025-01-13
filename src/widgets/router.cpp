@@ -176,11 +176,11 @@ static void s_widget_router_show_interface()
             for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
             {
                 auto& item = s_router->ip_interfaces[i];
-                ImGui::PushID(item.InterfaceLuid);
+                ImGui::PushID(reinterpret_cast<void*>(item.InterfaceLuid));
                 ImGui::TableNextRow();
 
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%d", item.family);
+                ImGui::Text("%d", item.Family);
 
                 ImGui::TableSetColumnIndex(1);
                 ImGui::Text("%" PRIu64, item.InterfaceLuid);
