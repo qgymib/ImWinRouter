@@ -59,7 +59,7 @@ static void s_widget_router_refresh()
     s_router->ipv4_routes.clear();
     s_router->ipv6_routes.clear();
 
-    s_router->ip_interfaces = iwr::GetIpInterfaces();
+    s_router->ip_interfaces = iwr::GetIpInterfaceVec();
 
     PMIB_IPFORWARD_TABLE2 pIpForwardTable = nullptr;
     if (GetIpForwardTable2(AF_UNSPEC, &pIpForwardTable) != NO_ERROR)
@@ -207,7 +207,7 @@ static void s_widget_router_show_interface()
 
 static void s_widget_router_show()
 {
-    if (ImGui::Button("Refresh router"))
+    if (ImGui::Button(T->refresh))
     {
         s_widget_router_refresh();
     }

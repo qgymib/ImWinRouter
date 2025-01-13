@@ -10,10 +10,12 @@ typedef struct widget_debug
     widget_debug();
     ~widget_debug();
 
-    bool                show_window;
-    iwr::TitleBuilder*  window_title;
-    bool                show_imgui_demo;
+    bool               show_window;
+    ImVec2             default_window_size;
+    iwr::TitleBuilder* window_title;
+
     iwr::IpInterfaceVec ip_interfaces;
+    iwr::IpForwardVec   ip_forwards;
 } widget_debug_t;
 
 static widget_debug_t* s_debug = nullptr;
@@ -21,9 +23,10 @@ static widget_debug_t* s_debug = nullptr;
 widget_debug::widget_debug()
 {
     show_window = false;
-    show_imgui_demo = false;
+    default_window_size = ImVec2(640, 320);
     window_title = new iwr::TitleBuilder("__WIDGET_DEBUG");
-    ip_interfaces = iwr::GetIpInterfaces();
+    ip_interfaces = iwr::GetIpInterfaceVec();
+    ip_forwards = iwr::GetIpForwardVec();
 }
 
 widget_debug::~widget_debug()
@@ -42,11 +45,21 @@ static void s_widget_debug_exit()
     s_debug = nullptr;
 }
 
+static void s_widget_debug_ip_interface_refresh()
+{
+    s_debug->ip_interfaces = iwr::GetIpInterfaceVec();
+}
+
 static void s_widget_debug_ip_interface()
 {
-    const char* table_id = "debug_ip_interface";
-    const int table_flags =  ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
+    if (ImGui::Button(T->refresh))
+    {
+        s_widget_debug_ip_interface_refresh();
+    }
 
+    const char* table_id = "debug_ip_interface";
+    const int   table_flags =
+        ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
     if (ImGui::BeginTable(table_id, 6, table_flags))
     {
         ImGui::TableSetupColumn("family");
@@ -94,16 +107,73 @@ static void s_widget_debug_ip_interface()
     }
 }
 
-static void s_widget_debug_show()
+static void s_widget_debug_ip_forward_refresh()
 {
-    ImGui::Checkbox("Show Imgui Demo window", &s_debug->show_imgui_demo);
-    if (s_debug->show_imgui_demo)
+    s_debug->ip_forwards = iwr::GetIpForwardVec();
+}
+
+static void s_widget_debug_ip_forward()
+{
+    if (ImGui::Button(T->refresh))
     {
-        ImGui::ShowDemoWindow(&s_debug->show_imgui_demo);
+        s_widget_debug_ip_forward_refresh();
     }
 
+    const char* table_id = "debug_ip_forward";
+    const int   table_flags =
+        ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
+    if (ImGui::BeginTable(table_id, 6, table_flags))
+    {
+        ImGui::TableSetupColumn("family");
+        ImGui::TableSetupColumn("Destination");
+        ImGui::TableSetupColumn("Gateway");
+        ImGui::TableSetupColumn("InterfaceLuid");
+        ImGui::TableSetupColumn("InterfaceIndex");
+        ImGui::TableSetupColumn("Metric");
+        ImGui::TableHeadersRow();
+
+        ImGuiListClipper clipper;
+        clipper.Begin((int)s_debug->ip_forwards.size());
+
+        while (clipper.Step())
+        {
+            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+            {
+                auto& item = s_debug->ip_forwards[i];
+                ImGui::PushID(item.InterfaceLuid);
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%d", item.family);
+
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%s", item.Destination.c_str());
+
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%s", item.Gateway.c_str());
+
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("%" PRIu64, item.InterfaceLuid);
+
+                ImGui::TableSetColumnIndex(4);
+                ImGui::Text("%" PRIu64, item.InterfaceIndex);
+
+                ImGui::TableSetColumnIndex(5);
+                ImGui::Text("%" PRIu32, item.Metric);
+
+                ImGui::PopID();
+            }
+        }
+
+        ImGui::EndTable();
+    }
+}
+
+static void s_widget_debug_show()
+{
     static iwr::UiTab tabs[] = {
         { "IpInterface", s_widget_debug_ip_interface },
+        { "IpForward",   s_widget_debug_ip_forward   },
     };
 
     if (ImGui::BeginTabBar("debug_tabs"))
@@ -139,9 +209,11 @@ static void s_widget_debug_draw()
     }
 
     s_debug->window_title->build(T->debug);
+    ImGui::SetNextWindowSize(s_debug->default_window_size,
+                             ImGuiCond_FirstUseEver);
 
     const char* title = s_debug->window_title->title();
-    const int   flags = ImGuiWindowFlags_AlwaysAutoResize;
+    const int   flags = 0;
     if (ImGui::Begin(title, &s_debug->show_window, flags))
     {
         s_widget_debug_show();

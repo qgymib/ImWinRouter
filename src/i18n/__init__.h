@@ -14,6 +14,7 @@
     xx(localization)    \
     xx(name)            \
     xx(preferences)     \
+    xx(refresh)         \
     xx(router)          \
     xx(settings)        \
     xx(tools)           \

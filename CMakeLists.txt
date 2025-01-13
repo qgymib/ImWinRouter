@@ -25,6 +25,7 @@ add_executable(${PROJECT_NAME}
     "src/widgets/__init__.cpp"
     "src/widgets/about.cpp"
     "src/widgets/debug.cpp"
+    "src/widgets/demo.cpp"
     "src/widgets/preferences.cpp"
     "src/widgets/router.cpp"
     "src/utils/font.cpp"

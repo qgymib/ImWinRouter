@@ -4,6 +4,7 @@ static const iwr::widget_t* s_widgets[] = {
     &iwr::widget_preferences,
     &iwr::widget_router,
     &iwr::widget_debug,
+    &iwr::widget_demo,
     &iwr::widget_about,
 };
 

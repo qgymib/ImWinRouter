@@ -8,14 +8,16 @@
 namespace iwr
 {
 
-struct RouteItem
+struct IpForward
 {
+    int         family;         /**< AF_INET / AF_INET6 */
     std::string Destination;    /**< Destination address. */
     std::string Gateway;        /**< Gateway. */
-    unsigned    InterfaceIndex; /**< Interface index. */
-    unsigned    Metric;         /**< Metric */
+    uint64_t InterfaceLuid;
+    uint64_t    InterfaceIndex; /**< Interface index. */
+    uint32_t    Metric;         /**< Metric */
 };
-typedef std::vector<RouteItem> RouteVec;
+typedef std::vector<IpForward> IpForwardVec;
 
 struct IpInterface
 {
@@ -61,7 +63,13 @@ typedef std::vector<IpInterface> IpInterfaceVec;
  * @brief Retrieves the IP interface entries on the local computer.
  * @return Interface list.
  */
-IpInterfaceVec GetIpInterfaces();
+IpInterfaceVec GetIpInterfaceVec();
+
+/**
+ * @brief Retrieves the IP route entries on the local computer.
+ * @return Route list.
+ */
+IpForwardVec GetIpForwardVec();
 
 } // namespace iwr
 
