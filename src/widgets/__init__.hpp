@@ -81,6 +81,7 @@ extern const widget_t widget_debug;
 extern const widget_t widget_notify;
 extern const widget_t widget_preferences;
 
+extern const view_t view_adapter;
 extern const view_t view_router;
 
 } // namespace iwr

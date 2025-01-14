@@ -9,6 +9,7 @@ static const iwr::widget_t* s_widgets[] = {
 };
 
 static const iwr::view_t* s_views[] = {
+    &iwr::view_adapter,
     &iwr::view_router,
 };
 

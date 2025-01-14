@@ -23,6 +23,9 @@ IWR_I18N_LOCALE_DECLARE(zh_CN) = {
 .name =
 "名称",
 
+.network_adapter =
+"网络适配器",
+
 .notification =
 "通知",
 

@@ -23,6 +23,9 @@ IWR_I18N_LOCALE_DECLARE(en_US) = {
 .name =
 "Name",
 
+.network_adapter =
+"Network Adapter",
+
 .notification =
 "Notification",
 

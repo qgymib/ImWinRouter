@@ -64,6 +64,22 @@ struct IpForward
      * @brief The route metric offset value for this IP route entry.
      */
     uint32_t Metric;
+
+    /**
+     * @brief A value that specifies if the route is a loopback route (the
+     * gateway is on the local host).
+     */
+    bool Loopback;
+
+    /**
+     * @brief A value that specifies if the IP address is autoconfigured.
+     */
+    bool AutoconfigureAddress;
+
+    /**
+     * @brief The origin of the route.
+     */
+    int Origin;
 };
 
 /**
@@ -107,6 +123,11 @@ struct IpInterface
      * persistent.
      */
     uint64_t InterfaceIndex;
+
+    /**
+     * @brief The link local address behavior.
+     */
+    int LinkLocalAddressBehavior;
 
     /**
      * @brief The interface metric.
@@ -169,6 +190,11 @@ struct AdaptersAddresses
     std::string FriendlyName;
 
     /**
+     * @brief The Domain Name System (DNS) suffix associated with this adapter.
+     */
+    std::string DnsSuffix;
+
+    /**
      * @brief A description for the adapter.
      */
     std::string Description;
@@ -186,7 +212,8 @@ struct AdaptersAddresses
     uint64_t Luid;
 
     bool Ipv4Enabled;
-    bool Ipv6Enabled;
+
+    bool Dhcpv4Enabled;
 
     /**
      * @brief The IPv4 interface metric for the adapter address. This member is
@@ -198,6 +225,8 @@ struct AdaptersAddresses
      * this member for IPv4.
      */
     uint32_t Ipv4Metric;
+
+    bool Ipv6Enabled;
 
     /**
      * @brief The IPv6 interface metric for the adapter address. This member is

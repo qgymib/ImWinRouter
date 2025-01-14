@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
     "src/i18n/zh_CN.c"
     "src/widgets/__init__.cpp"
     "src/widgets/about.cpp"
+    "src/widgets/adapter.cpp"
     "src/widgets/debug.cpp"
     "src/widgets/notify.cpp"
     "src/widgets/preferences.cpp"
