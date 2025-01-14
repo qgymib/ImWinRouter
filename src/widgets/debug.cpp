@@ -1,6 +1,6 @@
 #include <imgui.h>
-#include <cinttypes>
 #include <sstream>
+#include <nlohmann/json.hpp>
 #include "i18n/__init__.h"
 #include "utils/ip.hpp"
 #include "utils/title_builder.hpp"
@@ -52,7 +52,7 @@ static void s_widget_debug_ip_interface()
     {
         std::ostringstream oss;
         oss << iwr::GetIpInterfaceVec();
-        s_debug->ip_interfaces = oss.str();
+        s_debug->ip_interfaces = nlohmann::json::parse(oss.str()).dump(2);
     }
 
     ImGui::TextWrapped("%s", s_debug->ip_interfaces.c_str());
@@ -64,7 +64,7 @@ static void s_widget_debug_ip_forward()
     {
         std::ostringstream oss;
         oss << iwr::GetIpForwardVec();
-        s_debug->ip_forwards = oss.str();
+        s_debug->ip_forwards = nlohmann::json::parse(oss.str()).dump(2);
     }
 
     ImGui::TextWrapped("%s", s_debug->ip_forwards.c_str());
@@ -76,7 +76,7 @@ static void s_widget_debug_adapters_addresses()
     {
         std::ostringstream oss;
         oss << iwr::GetAdaptersAddressesVec();
-        s_debug->ip_adapters = oss.str();
+        s_debug->ip_adapters = nlohmann::json::parse(oss.str()).dump(2);
     }
 
     ImGui::TextWrapped("%s", s_debug->ip_adapters.c_str());
@@ -106,7 +106,7 @@ static void s_widget_debug_show()
     static iwr::UiTab tabs[] = {
         { "IpForward",         s_widget_debug_ip_forward         },
         { "IpInterface",       s_widget_debug_ip_interface       },
-        { "Adaptersaddresses", s_widget_debug_adapters_addresses },
+        { "AdaptersAddresses", s_widget_debug_adapters_addresses },
         { "Notification",      s_widget_debug_notification       },
         { "ImGui Demo",        s_widget_debug_imgui_demo         },
     };

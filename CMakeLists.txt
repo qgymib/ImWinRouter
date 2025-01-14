@@ -52,3 +52,6 @@ setup_target_wall(${PROJECT_NAME})
 
 include(third_party/imgui.cmake)
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+
+include(third_party/json.cmake)
+target_include_directories(${PROJECT_NAME} PRIVATE ${JSON_INCLUDE_DIRS})

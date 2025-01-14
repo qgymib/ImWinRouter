@@ -4,41 +4,40 @@
 #include <netioapi.h>
 #include <iphlpapi.h>
 #include <stdexcept>
+#include <nlohmann/json.hpp>
 #include "utils/iostream.hpp"
 #include "utils/memory.hpp"
 #include "utils/string.hpp"
 #include "ip.hpp"
 
-std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpForward& item)
+std::ostream& iwr::operator<<(std::ostream& os, const IpForward& item)
 {
-    os << "{";
-    os << "\"Family\":" << item.Family << ",";
-    os << "\"Destination\":" << item.Destination << ",";
-    os << "\"PrefixLength\":" << static_cast<int>(item.PrefixLength) << ",";
-    os << "\"NextHop\":" << item.NextHop << ",";
-    os << "\"InterfaceLuid\":" << item.InterfaceLuid << ",";
-    os << "\"InterfaceIndex\":" << item.InterfaceIndex << ",";
-    os << "\"Metric\":" << item.Metric;
-    os << "}";
-    return os;
+    nlohmann::json json;
+    json["Family"] = item.Family;
+    json["Destination"] = item.Destination;
+    json["PrefixLength"] = item.PrefixLength;
+    json["NextHop"] = item.NextHop;
+    json["InterfaceLuid"] = item.InterfaceLuid;
+    json["InterfaceIndex"] = item.InterfaceIndex;
+    json["Metric"] = item.Metric;
+    return os << json.dump();
 }
 
-std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpForwardVec& vec)
+std::ostream& iwr::operator<<(std::ostream& os, const IpForwardVec& vec)
 {
     return iwr::ostream<IpForward>(os, vec);
 }
 
-std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpInterface& item)
+std::ostream& iwr::operator<<(std::ostream& os, const IpInterface& item)
 {
-    os << "{";
-    os << "\"Family\":" << item.Family << ",";
-    os << "\"InterfaceLuid\":" << item.InterfaceLuid << ",";
-    os << "\"InterfaceIndex\":" << item.InterfaceIndex << ",";
-    os << "\"Metric\":" << item.Metric << ",";
-    os << "\"Connected\":" << item.Connected << ",";
-    os << "\"DisableDefaultRoutes\":" << item.DisableDefaultRoutes;
-    os << "}";
-    return os;
+    nlohmann::json json;
+    json["Family"] = item.Family;
+    json["InterfaceLuid"] = item.InterfaceLuid;
+    json["InterfaceIndex"] = item.InterfaceIndex;
+    json["Metric"] = item.Metric;
+    json["Connected"] = item.Connected;
+    json["DisableDefaultRoutes"] = item.DisableDefaultRoutes;
+    return os << json.dump();
 }
 
 std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpInterfaceVec& vec)
@@ -46,23 +45,22 @@ std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpInterfaceVec& vec)
     return iwr::ostream<IpInterface>(os, vec);
 }
 
-std::ostream& iwr::operator<<(std::ostream& os, const iwr::AdaptersAddresses& item)
+std::ostream& iwr::operator<<(std::ostream& os, const AdaptersAddresses& item)
 {
-    os << "{";
-    os << "\"AdapterName\":" << item.AdapterName << ",";
-    os << "\"FriendlyName\":" << item.FriendlyName << ",";
-    os << "\"Description\":" << item.Description << ",";
-    os << "\"PhysicalAddress\":" << item.PhysicalAddress << ",";
-    os << "\"Luid\":" << item.Luid << ",";
-    os << "\"Ipv4Enabled\":" << item.Ipv4Enabled << ",";
-    os << "\"Ipv6Enabled\":" << item.Ipv6Enabled << ",";
-    os << "\"Ipv4Metric\":" << item.Ipv4Metric << ",";
-    os << "\"Ipv6Metric\":" << item.Ipv6Metric;
-    os << "}";
-    return os;
+    nlohmann::json json;
+    json["AdapterName"] = item.AdapterName;
+    json["FriendlyName"] = item.FriendlyName;
+    json["Description"] = item.Description;
+    json["PhysicalAddress"] = item.PhysicalAddress;
+    json["Luid"] = item.Luid;
+    json["Ipv4Enabled"] = item.Ipv4Enabled;
+    json["Ipv6Enabled"] = item.Ipv6Enabled;
+    json["Ipv4Metric"] = item.Ipv4Metric;
+    json["Ipv6Metric"] = item.Ipv6Metric;
+    return os << json.dump();
 }
 
-std::ostream& iwr::operator<<(std::ostream& os, const iwr::AdaptersAddressesVec& vec)
+std::ostream& iwr::operator<<(std::ostream& os, const AdaptersAddressesVec& vec)
 {
     return iwr::ostream<AdaptersAddresses>(os, vec);
 }
