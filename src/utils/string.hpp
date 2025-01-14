@@ -1,7 +1,7 @@
 #ifndef UTILS_STRING_HPP
 #define UTILS_STRING_HPP
 
-#include <Esent.h>
+#include <windows.h>
 #include <string>
 
 namespace iwr

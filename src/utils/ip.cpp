@@ -156,7 +156,7 @@ static std::string s_physical_address_to_string(const BYTE* PhysicalAddress,
         const int v = (int)PhysicalAddress[i];
         if (i == (PhysicalAddressLength - 1))
         {
-            snprintf(buff, sizeof(buff), "%.2X\n", v);
+            snprintf(buff, sizeof(buff), "%.2X", v);
         }
         else
         {

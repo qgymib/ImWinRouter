@@ -28,6 +28,7 @@ add_executable(${PROJECT_NAME}
     "src/widgets/notify.cpp"
     "src/widgets/preferences.cpp"
     "src/widgets/router.cpp"
+    "src/utils/exception.cpp"
     "src/utils/font.cpp"
     "src/utils/ip.cpp"
     "src/utils/string.cpp"
