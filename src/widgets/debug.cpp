@@ -1,5 +1,6 @@
 #include <imgui.h>
 #include <cinttypes>
+#include <sstream>
 #include "i18n/__init__.h"
 #include "utils/ip.hpp"
 #include "utils/title_builder.hpp"
@@ -15,9 +16,9 @@ typedef struct widget_debug
     ImVec2             default_window_size;
     iwr::TitleBuilder* window_title;
 
-    iwr::IpInterfaceVec       ip_interfaces;
-    iwr::IpForwardVec         ip_forwards;
-    iwr::AdaptersAddressesVec ip_adapters;
+    std::string ip_interfaces;
+    std::string ip_forwards;
+    std::string ip_adapters;
 } widget_debug_t;
 
 static widget_debug_t* s_debug = nullptr;
@@ -27,9 +28,6 @@ widget_debug::widget_debug()
     show_window = false;
     default_window_size = ImVec2(640, 320);
     window_title = new iwr::TitleBuilder("__WIDGET_DEBUG");
-    ip_interfaces = iwr::GetIpInterfaceVec();
-    ip_forwards = iwr::GetIpForwardVec();
-    ip_adapters = iwr::GetAdaptersAddressesVec();
 }
 
 widget_debug::~widget_debug()
@@ -48,198 +46,40 @@ static void s_widget_debug_exit()
     s_debug = nullptr;
 }
 
-static void s_widget_debug_ip_interface_refresh()
-{
-    s_debug->ip_interfaces = iwr::GetIpInterfaceVec();
-}
-
 static void s_widget_debug_ip_interface()
 {
     if (ImGui::Button(T->refresh))
     {
-        s_widget_debug_ip_interface_refresh();
+        std::ostringstream oss;
+        oss << iwr::GetIpInterfaceVec();
+        s_debug->ip_interfaces = oss.str();
     }
 
-    const char* table_id = "debug_ip_interface";
-    const int   table_flags =
-        ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
-    if (ImGui::BeginTable(table_id, 6, table_flags))
-    {
-        ImGui::TableSetupColumn("Family");
-        ImGui::TableSetupColumn("InterfaceLuid");
-        ImGui::TableSetupColumn("InterfaceIndex");
-        ImGui::TableSetupColumn("Metric");
-        ImGui::TableSetupColumn("Connected");
-        ImGui::TableSetupColumn("DisableDefaultRoutes");
-        ImGui::TableHeadersRow();
-
-        ImGuiListClipper clipper;
-        clipper.Begin(static_cast<int>(s_debug->ip_interfaces.size()));
-
-        while (clipper.Step())
-        {
-            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-            {
-                auto& item = s_debug->ip_interfaces[i];
-                ImGui::PushID(reinterpret_cast<void*>(item.InterfaceLuid));
-                ImGui::TableNextRow();
-
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%d", item.Family);
-
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%" PRIu64, item.InterfaceLuid);
-
-                ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%" PRIu64, item.InterfaceIndex);
-
-                ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%" PRIu32, item.Metric);
-
-                ImGui::TableSetColumnIndex(4);
-                ImGui::Text("%d", item.Connected);
-
-                ImGui::TableSetColumnIndex(5);
-                ImGui::Text("%d", item.DisableDefaultRoutes);
-
-                ImGui::PopID();
-            }
-        }
-
-        ImGui::EndTable();
-    }
-}
-
-static void s_widget_debug_ip_forward_refresh()
-{
-    s_debug->ip_forwards = iwr::GetIpForwardVec();
+    ImGui::TextWrapped("%s", s_debug->ip_interfaces.c_str());
 }
 
 static void s_widget_debug_ip_forward()
 {
     if (ImGui::Button(T->refresh))
     {
-        s_widget_debug_ip_forward_refresh();
+        std::ostringstream oss;
+        oss << iwr::GetIpForwardVec();
+        s_debug->ip_forwards = oss.str();
     }
 
-    const char* table_id = "debug_ip_forward";
-    const int   table_flags =
-        ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
-    if (ImGui::BeginTable(table_id, 7, table_flags))
-    {
-        ImGui::TableSetupColumn("Family");
-        ImGui::TableSetupColumn("Destination");
-        ImGui::TableSetupColumn("PrefixLength");
-        ImGui::TableSetupColumn("NextHop");
-        ImGui::TableSetupColumn("InterfaceLuid");
-        ImGui::TableSetupColumn("InterfaceIndex");
-        ImGui::TableSetupColumn("Metric");
-        ImGui::TableHeadersRow();
-
-        ImGuiListClipper clipper;
-        clipper.Begin(static_cast<int>(s_debug->ip_forwards.size()));
-
-        while (clipper.Step())
-        {
-            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-            {
-                auto& item = s_debug->ip_forwards[i];
-                ImGui::PushID(reinterpret_cast<void*>(item.InterfaceLuid));
-                ImGui::TableNextRow();
-
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%d", item.Family);
-
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", item.Destination.c_str());
-
-                ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%u", item.PrefixLength);
-
-                ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%s", item.NextHop.c_str());
-
-                ImGui::TableSetColumnIndex(4);
-                ImGui::Text("%" PRIu64, item.InterfaceLuid);
-
-                ImGui::TableSetColumnIndex(5);
-                ImGui::Text("%" PRIu64, item.InterfaceIndex);
-
-                ImGui::TableSetColumnIndex(6);
-                ImGui::Text("%" PRIu32, item.Metric);
-
-                ImGui::PopID();
-            }
-        }
-
-        ImGui::EndTable();
-    }
-}
-
-static void s_widget_debug_adapters_addresses_refresh()
-{
-    s_debug->ip_adapters = iwr::GetAdaptersAddressesVec();
+    ImGui::TextWrapped("%s", s_debug->ip_forwards.c_str());
 }
 
 static void s_widget_debug_adapters_addresses()
 {
     if (ImGui::Button(T->refresh))
     {
-        s_widget_debug_adapters_addresses_refresh();
+        std::ostringstream oss;
+        oss << iwr::GetAdaptersAddressesVec();
+        s_debug->ip_adapters = oss.str();
     }
 
-    const char* table_id = "debug_adapters_addresses";
-    const int   table_flags =
-        ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
-    if (ImGui::BeginTable(table_id, 7, table_flags))
-    {
-        ImGui::TableSetupColumn("FriendlyName");
-        ImGui::TableSetupColumn("PhysicalAddress");
-        ImGui::TableSetupColumn("Luid");
-        ImGui::TableSetupColumn("Ipv4Enabled");
-        ImGui::TableSetupColumn("Ipv6Enabled");
-        ImGui::TableSetupColumn("Ipv4Metric");
-        ImGui::TableSetupColumn("Ipv6Metric");
-        ImGui::TableHeadersRow();
-
-        ImGuiListClipper clipper;
-        clipper.Begin(static_cast<int>(s_debug->ip_adapters.size()));
-
-        while (clipper.Step())
-        {
-            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-            {
-                auto& item = s_debug->ip_adapters[i];
-                ImGui::PushID(item.Luid);
-                ImGui::TableNextRow();
-
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%s", item.FriendlyName.c_str());
-
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", item.PhysicalAddress.c_str());
-
-                ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%" PRIu64, item.Luid);
-
-                ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%d", static_cast<int>(item.Ipv4Enabled));
-
-                ImGui::TableSetColumnIndex(4);
-                ImGui::Text("%d", static_cast<int>(item.Ipv6Enabled));
-
-                ImGui::TableSetColumnIndex(5);
-                ImGui::Text("%" PRIu32, item.Ipv4Metric);
-
-                ImGui::TableSetColumnIndex(6);
-                ImGui::Text("%" PRIu32, item.Ipv6Metric);
-
-                ImGui::PopID();
-            }
-        }
-
-        ImGui::EndTable();
-    }
+    ImGui::TextWrapped("%s", s_debug->ip_adapters.c_str());
 }
 
 static void s_widget_debug_notification()

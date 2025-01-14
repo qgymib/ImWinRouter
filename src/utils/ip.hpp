@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <iostream>
 #include "utils/string.hpp"
 
 namespace iwr
@@ -64,7 +65,27 @@ struct IpForward
      */
     uint32_t Metric;
 };
+
+/**
+ * @brief String converter for #IpForward.
+ * @param[in] os Out stream.
+ * @param[in] item Item.
+ * @return Out stream.
+ */
+std::ostream& operator<<(std::ostream& os, const IpForward& item);
+
+/**
+ * @brief Vector of #IpForward.
+ */
 typedef std::vector<IpForward> IpForwardVec;
+
+/**
+ * @brief String converter for #IpForwardVec.
+ * @param[in] os Out stream.
+ * @param[in] vec Item.
+ * @return Out stream.
+ */
+std::ostream& operator<<(std::ostream& os, const IpForwardVec& vec);
 
 struct IpInterface
 {
@@ -107,7 +128,27 @@ struct IpInterface
      */
     bool DisableDefaultRoutes;
 };
+
+/**
+ * @brief String converter for #IpInterface.
+ * @param[in] os Out stream.
+ * @param[in] item Item.
+ * @return Out stream.
+ */
+std::ostream& operator<<(std::ostream& os, const IpInterface& item);
+
+/**
+ * @brief Vector of #IpInterface.
+ */
 typedef std::vector<IpInterface> IpInterfaceVec;
+
+/**
+ * @brief String converter for #IpInterface.
+ * @param[in] os Out stream.
+ * @param[in] vec Item.
+ * @return Out stream.
+ */
+std::ostream& operator<<(std::ostream& os, const IpInterfaceVec& vec);
 
 struct AdaptersAddresses
 {
@@ -169,7 +210,27 @@ struct AdaptersAddresses
      */
     uint32_t Ipv6Metric;
 };
+
+/**
+ * @brief String converter for #AdaptersAddresses.
+ * @param[in] os Out stream.
+ * @param[in] item Item.
+ * @return Out stream.
+ */
+std::ostream& operator<<(std::ostream& os, const AdaptersAddresses& item);
+
+/**
+ * @brief Vector of #AdaptersAddresses.
+ */
 typedef std::vector<AdaptersAddresses> AdaptersAddressesVec;
+
+/**
+ * @brief String converter for #AdaptersAddressesVec.
+ * @param[in] os Out stream.
+ * @param[in] vec Item.
+ * @return Out stream.
+ */
+std::ostream& operator<<(std::ostream& os, const AdaptersAddressesVec& vec);
 
 /**
  * @brief Retrieves the IP interface entries on the local computer.

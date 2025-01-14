@@ -6,30 +6,16 @@
 #include <cinttypes>
 #include "i18n/__init__.h"
 #include "utils/ip.hpp"
-#include "utils/title_builder.hpp"
 #include "__init__.hpp"
-
-typedef struct route_item
-{
-    std::string Destination;
-    std::string Gateway;
-    ULONG       Interface;
-    ULONG       Metric;
-} route_item_t;
-
-typedef std::vector<route_item_t> RouteVec;
 
 typedef struct widget_router
 {
     widget_router();
     ~widget_router();
 
-    bool                show_window;
     float               ipv6_text_width;
-    ImVec2              window_size;
-    iwr::TitleBuilder*  window_title;
-    RouteVec            ipv4_routes;
-    RouteVec            ipv6_routes;
+    iwr::IpForwardVec   ipv4_routes;
+    iwr::IpForwardVec   ipv6_routes;
     iwr::IpInterfaceVec ip_interfaces;
 } widget_router_t;
 
@@ -37,15 +23,16 @@ static widget_router_t* s_router = nullptr;
 
 widget_router::widget_router()
 {
-    show_window = false;
     ipv6_text_width = 300;
-    window_size = ImVec2(0, ImGui::GetTextLineHeight() * 5);
-    window_title = new iwr::TitleBuilder("__WIDGET_ROUTER");
 }
 
 widget_router::~widget_router()
 {
-    delete window_title;
+}
+
+static const char* s_view_router_name()
+{
+    return T->router;
 }
 
 static void s_widget_router_exit()
@@ -58,50 +45,20 @@ static void s_widget_router_refresh()
 {
     s_router->ipv4_routes.clear();
     s_router->ipv6_routes.clear();
-
     s_router->ip_interfaces = iwr::GetIpInterfaceVec();
 
-    PMIB_IPFORWARD_TABLE2 pIpForwardTable = nullptr;
-    if (GetIpForwardTable2(AF_UNSPEC, &pIpForwardTable) != NO_ERROR)
+    iwr::IpForwardVec routes = iwr::GetIpForwardVec();
+    for (iwr::IpForward& route : routes)
     {
-        return;
-    }
-
-    char dest[INET6_ADDRSTRLEN], gateway[INET6_ADDRSTRLEN];
-    for (ULONG i = 0; i < pIpForwardTable->NumEntries; i++)
-    {
-        MIB_IPFORWARD_ROW2* info = &pIpForwardTable->Table[i];
-        if (info->DestinationPrefix.Prefix.si_family == AF_INET)
+        if (route.Family == AF_INET)
         {
-            inet_ntop(AF_INET, &info->DestinationPrefix.Prefix.Ipv4.sin_addr,
-                      dest, sizeof(dest));
-            inet_ntop(AF_INET, &info->NextHop.Ipv4.sin_addr, gateway,
-                      sizeof(gateway));
-            route_item_t item = {
-                dest,
-                gateway,
-                info->InterfaceIndex,
-                info->Metric,
-            };
-            s_router->ipv4_routes.push_back(item);
+            s_router->ipv4_routes.push_back(route);
         }
         else
         {
-            inet_ntop(AF_INET6, &info->DestinationPrefix.Prefix.Ipv6.sin6_addr,
-                      dest, sizeof(dest));
-            inet_ntop(AF_INET6, &info->NextHop.Ipv6.sin6_addr, gateway,
-                      sizeof(gateway));
-            route_item_t item = {
-                dest,
-                gateway,
-                info->InterfaceIndex,
-                info->Metric,
-            };
-            s_router->ipv6_routes.push_back(item);
+            s_router->ipv6_routes.push_back(route);
         }
     }
-
-    FreeMibTable(pIpForwardTable);
 }
 
 static void s_widget_router_init()
@@ -110,7 +67,7 @@ static void s_widget_router_init()
     s_widget_router_refresh();
 }
 
-static void s_widget_router_show_ip(const char* id, const RouteVec& vec)
+static void s_widget_router_show_ip(const char* id, const iwr::IpForwardVec& vec)
 {
     const int table_flags =
         ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
@@ -118,7 +75,7 @@ static void s_widget_router_show_ip(const char* id, const RouteVec& vec)
     {
         ImGui::TableSetupColumn("Destination", 0, s_router->ipv6_text_width);
         ImGui::TableSetupColumn("Gateway", 0, s_router->ipv6_text_width);
-        ImGui::TableSetupColumn("Interface", 0, 64);
+        ImGui::TableSetupColumn("InterfaceLuid", 0, 64);
         ImGui::TableSetupColumn("Metric", 0, 64);
         ImGui::TableHeadersRow();
 
@@ -129,7 +86,7 @@ static void s_widget_router_show_ip(const char* id, const RouteVec& vec)
         {
             for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
             {
-                const route_item_t& item = vec[i];
+                const iwr::IpForward& item = vec[i];
                 ImGui::PushID(&item.Destination);
                 ImGui::TableNextRow();
 
@@ -137,13 +94,13 @@ static void s_widget_router_show_ip(const char* id, const RouteVec& vec)
                 ImGui::Text("%s", item.Destination.c_str());
 
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", item.Gateway.c_str());
+                ImGui::Text("%s", item.NextHop.c_str());
 
                 ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%lu", item.Interface);
+                ImGui::Text("%" PRIu64, item.InterfaceLuid);
 
                 ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%lu", item.Metric);
+                ImGui::Text("%" PRIu32, item.Metric);
 
                 ImGui::PopID();
             }
@@ -156,11 +113,11 @@ static void s_widget_router_show_ip(const char* id, const RouteVec& vec)
 static void s_widget_router_show_interface()
 {
     const char* table_id = "router_interface";
-    const int table_flags =
+    const int   table_flags =
         ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
     if (ImGui::BeginTable(table_id, 6, table_flags))
     {
-        ImGui::TableSetupColumn("family");
+        ImGui::TableSetupColumn("Family");
         ImGui::TableSetupColumn("Luid");
         ImGui::TableSetupColumn("Index");
         ImGui::TableSetupColumn("Metric");
@@ -205,7 +162,7 @@ static void s_widget_router_show_interface()
     }
 }
 
-static void s_widget_router_show()
+static void s_widget_router_draw()
 {
     if (ImGui::Button(T->refresh))
     {
@@ -220,37 +177,8 @@ static void s_widget_router_show()
     s_widget_router_show_ip("router_table_ipv6", s_router->ipv6_routes);
 }
 
-static void s_widget_router_draw()
-{
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu(T->tools))
-        {
-            ImGui::MenuItem(T->router, nullptr, &s_router->show_window);
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMainMenuBar();
-    }
-
-    if (!s_router->show_window)
-    {
-        return;
-    }
-
-    s_router->window_title->build(T->router);
-
-    const char* title = s_router->window_title->title();
-    const int   flags = 0;
-    // ImGui::SetNextWindowSize(s_router->window_size);
-    if (ImGui::Begin(title, &s_router->show_window, flags))
-    {
-        s_widget_router_show();
-    }
-    ImGui::End();
-}
-
-const iwr::widget_t iwr::widget_router = {
+const iwr::view_t iwr::view_router = {
+    s_view_router_name,
     s_widget_router_init,
     s_widget_router_exit,
     s_widget_router_draw,

@@ -38,6 +38,29 @@ typedef struct widget
     void (*draw)();
 } widget_t;
 
+typedef struct view
+{
+    /**
+     * @brief Get name of this view.
+     */
+    const char* (*name)();
+
+    /**
+     * @brief Initialize view.
+     */
+    void (*init)();
+
+    /**
+     * @brief Cleanup view.
+     */
+    void (*exit)();
+
+    /**
+     * @brief Draw view.
+     */
+    void (*draw)();
+} view_t;
+
 /**
  * @brief Initialize all widgets.
  */
@@ -57,7 +80,8 @@ extern const widget_t widget_about;
 extern const widget_t widget_debug;
 extern const widget_t widget_notify;
 extern const widget_t widget_preferences;
-extern const widget_t widget_router;
+
+extern const view_t view_router;
 
 } // namespace iwr
 

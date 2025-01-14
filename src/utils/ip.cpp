@@ -4,9 +4,68 @@
 #include <netioapi.h>
 #include <iphlpapi.h>
 #include <stdexcept>
+#include "utils/iostream.hpp"
 #include "utils/memory.hpp"
 #include "utils/string.hpp"
 #include "ip.hpp"
+
+std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpForward& item)
+{
+    os << "{";
+    os << "\"Family\":" << item.Family << ",";
+    os << "\"Destination\":" << item.Destination << ",";
+    os << "\"PrefixLength\":" << static_cast<int>(item.PrefixLength) << ",";
+    os << "\"NextHop\":" << item.NextHop << ",";
+    os << "\"InterfaceLuid\":" << item.InterfaceLuid << ",";
+    os << "\"InterfaceIndex\":" << item.InterfaceIndex << ",";
+    os << "\"Metric\":" << item.Metric;
+    os << "}";
+    return os;
+}
+
+std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpForwardVec& vec)
+{
+    return iwr::ostream<IpForward>(os, vec);
+}
+
+std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpInterface& item)
+{
+    os << "{";
+    os << "\"Family\":" << item.Family << ",";
+    os << "\"InterfaceLuid\":" << item.InterfaceLuid << ",";
+    os << "\"InterfaceIndex\":" << item.InterfaceIndex << ",";
+    os << "\"Metric\":" << item.Metric << ",";
+    os << "\"Connected\":" << item.Connected << ",";
+    os << "\"DisableDefaultRoutes\":" << item.DisableDefaultRoutes;
+    os << "}";
+    return os;
+}
+
+std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpInterfaceVec& vec)
+{
+    return iwr::ostream<IpInterface>(os, vec);
+}
+
+std::ostream& iwr::operator<<(std::ostream& os, const iwr::AdaptersAddresses& item)
+{
+    os << "{";
+    os << "\"AdapterName\":" << item.AdapterName << ",";
+    os << "\"FriendlyName\":" << item.FriendlyName << ",";
+    os << "\"Description\":" << item.Description << ",";
+    os << "\"PhysicalAddress\":" << item.PhysicalAddress << ",";
+    os << "\"Luid\":" << item.Luid << ",";
+    os << "\"Ipv4Enabled\":" << item.Ipv4Enabled << ",";
+    os << "\"Ipv6Enabled\":" << item.Ipv6Enabled << ",";
+    os << "\"Ipv4Metric\":" << item.Ipv4Metric << ",";
+    os << "\"Ipv6Metric\":" << item.Ipv6Metric;
+    os << "}";
+    return os;
+}
+
+std::ostream& iwr::operator<<(std::ostream& os, const iwr::AdaptersAddressesVec& vec)
+{
+    return iwr::ostream<AdaptersAddresses>(os, vec);
+}
 
 iwr::IpInterfaceVec iwr::GetIpInterfaceVec()
 {
