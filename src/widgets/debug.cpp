@@ -15,8 +15,9 @@ typedef struct widget_debug
     ImVec2             default_window_size;
     iwr::TitleBuilder* window_title;
 
-    iwr::IpInterfaceVec ip_interfaces;
-    iwr::IpForwardVec   ip_forwards;
+    iwr::IpInterfaceVec       ip_interfaces;
+    iwr::IpForwardVec         ip_forwards;
+    iwr::AdaptersAddressesVec ip_adapters;
 } widget_debug_t;
 
 static widget_debug_t* s_debug = nullptr;
@@ -28,6 +29,7 @@ widget_debug::widget_debug()
     window_title = new iwr::TitleBuilder("__WIDGET_DEBUG");
     ip_interfaces = iwr::GetIpInterfaceVec();
     ip_forwards = iwr::GetIpForwardVec();
+    ip_adapters = iwr::GetAdaptersAddressesVec();
 }
 
 widget_debug::~widget_debug()
@@ -174,6 +176,72 @@ static void s_widget_debug_ip_forward()
     }
 }
 
+static void s_widget_debug_adapters_addresses_refresh()
+{
+    s_debug->ip_adapters = iwr::GetAdaptersAddressesVec();
+}
+
+static void s_widget_debug_adapters_addresses()
+{
+    if (ImGui::Button(T->refresh))
+    {
+        s_widget_debug_adapters_addresses_refresh();
+    }
+
+    const char* table_id = "debug_adapters_addresses";
+    const int   table_flags =
+        ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingFixedFit;
+    if (ImGui::BeginTable(table_id, 7, table_flags))
+    {
+        ImGui::TableSetupColumn("FriendlyName");
+        ImGui::TableSetupColumn("PhysicalAddress");
+        ImGui::TableSetupColumn("Luid");
+        ImGui::TableSetupColumn("Ipv4Enabled");
+        ImGui::TableSetupColumn("Ipv6Enabled");
+        ImGui::TableSetupColumn("Ipv4Metric");
+        ImGui::TableSetupColumn("Ipv6Metric");
+        ImGui::TableHeadersRow();
+
+        ImGuiListClipper clipper;
+        clipper.Begin(static_cast<int>(s_debug->ip_adapters.size()));
+
+        while (clipper.Step())
+        {
+            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+            {
+                auto& item = s_debug->ip_adapters[i];
+                ImGui::PushID(item.Luid);
+                ImGui::TableNextRow();
+
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", item.FriendlyName.c_str());
+
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%s", item.PhysicalAddress.c_str());
+
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%" PRIu64, item.Luid);
+
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("%d", static_cast<int>(item.Ipv4Enabled));
+
+                ImGui::TableSetColumnIndex(4);
+                ImGui::Text("%d", static_cast<int>(item.Ipv6Enabled));
+
+                ImGui::TableSetColumnIndex(5);
+                ImGui::Text("%" PRIu32, item.Ipv4Metric);
+
+                ImGui::TableSetColumnIndex(6);
+                ImGui::Text("%" PRIu32, item.Ipv6Metric);
+
+                ImGui::PopID();
+            }
+        }
+
+        ImGui::EndTable();
+    }
+}
+
 static void s_widget_debug_notification()
 {
     static char title[4096];
@@ -187,12 +255,20 @@ static void s_widget_debug_notification()
     }
 }
 
+static void s_widget_debug_imgui_demo()
+{
+    ImGui::Text("Dear ImGui Demo");
+    ImGui::ShowDemoWindow(nullptr);
+}
+
 static void s_widget_debug_show()
 {
     static iwr::UiTab tabs[] = {
-        { "IpForward",    s_widget_debug_ip_forward   },
-        { "IpInterface",  s_widget_debug_ip_interface },
-        { "Notification", s_widget_debug_notification },
+        { "IpForward",         s_widget_debug_ip_forward         },
+        { "IpInterface",       s_widget_debug_ip_interface       },
+        { "Adaptersaddresses", s_widget_debug_adapters_addresses },
+        { "Notification",      s_widget_debug_notification       },
+        { "ImGui Demo",        s_widget_debug_imgui_demo         },
     };
 
     if (ImGui::BeginTabBar("debug_tabs"))

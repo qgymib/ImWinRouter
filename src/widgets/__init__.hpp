@@ -55,7 +55,6 @@ void widget_draw();
 
 extern const widget_t widget_about;
 extern const widget_t widget_debug;
-extern const widget_t widget_demo;
 extern const widget_t widget_notify;
 extern const widget_t widget_preferences;
 extern const widget_t widget_router;
