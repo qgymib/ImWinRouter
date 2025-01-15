@@ -1,3 +1,4 @@
+#include <sstream>
 #include "utils/string.hpp"
 #include "exception.hpp"
 
@@ -6,7 +7,8 @@ iwr::Win32Error::Win32Error(DWORD errorCode, const std::string& msg)
     const DWORD dwFlags =
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM;
     WCHAR* msgBuf = NULL;
-    DWORD  dwRet = FormatMessageW(dwFlags, nullptr, errorCode, 0,
+    DWORD  dwLanguageId = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
+    DWORD  dwRet = FormatMessageW(dwFlags, nullptr, errorCode, dwLanguageId,
                                   (LPWSTR)&msgBuf, 0, nullptr);
     if (dwRet == 0)
     {
@@ -22,7 +24,10 @@ iwr::Win32Error::Win32Error(DWORD errorCode, const std::string& msg)
     {
         this->message = msg + ":";
     }
-    this->message += errMsg;
+
+    std::ostringstream oss;
+    oss << errorCode;
+    this->message += "ERR(" + oss.str() + "):" + errMsg;
 }
 
 const char* iwr::Win32Error::what() const noexcept

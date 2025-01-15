@@ -325,12 +325,25 @@ static std::string s_widget_debug_adapter_addresses()
     ULONG                             outBufLen = 32 * 1024;
     iwr::Memory<IP_ADAPTER_ADDRESSES> buff(outBufLen);
 
-    const ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
-    DWORD       dwRetVal = GetAdaptersAddresses(AF_UNSPEC, flags, nullptr,
-                                                buff.data(), &outBufLen);
+    const ULONG flags = GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_INCLUDE_WINS_INFO |
+                        GAA_FLAG_INCLUDE_GATEWAYS |
+                        GAA_FLAG_INCLUDE_ALL_INTERFACES |
+                        GAA_FLAG_INCLUDE_TUNNEL_BINDINGORDER;
+    DWORD dwRetVal = ERROR_BUFFER_OVERFLOW;
+    while (true)
+    {
+        dwRetVal = GetAdaptersAddresses(AF_UNSPEC, flags, nullptr, buff.data(),
+                                        &outBufLen);
+        if (dwRetVal != ERROR_BUFFER_OVERFLOW)
+        {
+            break;
+        }
+        buff.resize(outBufLen);
+    }
+
     if (dwRetVal != ERROR_SUCCESS)
     {
-        throw std::runtime_error("GetAdaptersAddresses failed");
+        throw iwr::Win32Error(dwRetVal, "GetAdaptersAddresses()");
     }
 
     nlohmann::json json = nlohmann::json::array();
@@ -367,6 +380,7 @@ static std::string s_widget_debug_adapter_addresses()
         {
             nlohmann::json anycastItem;
             anycastItem["Address"] = to_string(&pAnycastAddr->Address);
+            anycastJson.push_back(anycastItem);
         }
         item["AnycastAddress"] = anycastJson;
 
@@ -377,6 +391,7 @@ static std::string s_widget_debug_adapter_addresses()
         {
             nlohmann::json multicastItem;
             multicastItem["Address"] = to_string(&multicastAddr->Address);
+            multicastJson.push_back(multicastItem);
         }
         item["MulticastAddress"] = multicastJson;
 
@@ -387,6 +402,7 @@ static std::string s_widget_debug_adapter_addresses()
         {
             nlohmann::json dnsServerItem;
             dnsServerItem["Address"] = to_string(&dnsServerAddr->Address);
+            dnsServerJson.push_back(dnsServerItem);
         }
         item["DnsServerAddress"] = dnsServerJson;
 
@@ -423,6 +439,7 @@ static std::string s_widget_debug_adapter_addresses()
             nlohmann::json prefixItem;
             prefixItem["Address"] = to_string(&pPrefix->Address);
             prefixItem["PrefixLength"] = pPrefix->PrefixLength;
+            prefixJson.push_back(prefixItem);
         }
         item["Prefix"] = prefixJson;
 
@@ -436,6 +453,7 @@ static std::string s_widget_debug_adapter_addresses()
         {
             nlohmann::json winServerItem;
             winServerItem["Address"] = to_string(&pWinServerAddr->Address);
+            winServerJson.push_back(winServerItem);
         }
         item["WinServerAddress"] = winServerJson;
 
@@ -446,6 +464,7 @@ static std::string s_widget_debug_adapter_addresses()
         {
             nlohmann::json gatewayItem;
             gatewayItem["Address"] = to_string(&pGatewayAddr->Address);
+            gatewayJson.push_back(gatewayItem);
         }
         item["GatewayAddress"] = gatewayJson;
 
@@ -489,9 +508,9 @@ static void s_widget_debug_imgui_demo()
 static void s_widget_system_interface()
 {
     static info_item_t items[] = {
+        { "GetAdaptersAddresses", s_widget_debug_adapter_addresses },
         { "GetIpForwardTable2",   s_widget_debug_ip_forward        },
         { "GetIpInterfaceTable",  s_widget_debug_ip_interface      },
-        { "GetAdaptersAddresses", s_widget_debug_adapter_addresses },
     };
 
     const char* preview_value = items[s_debug->system_interface_selected].name;
@@ -517,7 +536,7 @@ static void s_widget_system_interface()
     }
     ImGui::SameLine();
 
-    if (ImGui::Button("Refresh"))
+    if (ImGui::Button(T->refresh))
     {
         s_debug->system_interface_data =
             items[s_debug->system_interface_selected].get();
