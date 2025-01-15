@@ -166,7 +166,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
     ImFont*     font =
         io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f, nullptr,
                                      io.Fonts->GetGlyphRangesChineseFull());
-    IM_ASSERT(font != nullptr);
+    if (font == nullptr)
+    {
+        abort();
+    }
 
     iwr_i18n_init();
     iwr::widget_init();
