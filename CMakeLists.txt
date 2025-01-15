@@ -18,7 +18,7 @@ endfunction()
 # Executable
 ###############################################################################
 
-add_executable(${PROJECT_NAME}
+add_executable(${PROJECT_NAME} WIN32
     "src/i18n/__init__.c"
     "src/i18n/en_US.c"
     "src/i18n/zh_CN.c"
@@ -37,6 +37,7 @@ add_executable(${PROJECT_NAME}
     "src/utils/title_builder.cpp"
     "src/utils/win32.cpp"
     "src/main.cpp"
+    "resource.rc"
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -46,8 +47,16 @@ target_include_directories(${PROJECT_NAME}
 
 target_compile_options(${PROJECT_NAME} PRIVATE -D_WIN32_WINNT=0x0600)
 target_link_libraries(${PROJECT_NAME} PRIVATE Iphlpapi Ws2_32)
-
 setup_target_wall(${PROJECT_NAME})
+
+if (MINGW)
+    target_link_options(${PROJECT_NAME} PRIVATE
+            -municode
+            -static-libgcc
+            -static-libstdc++
+            -static
+    )
+endif ()
 
 ###############################################################################
 # Dependency

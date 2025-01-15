@@ -105,7 +105,7 @@ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 // Main code
-int main(int, char**)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
 {
     std::wstring title = iwr::utf8_to_wide(PROJECT_NAME);
     // Create application window
@@ -115,8 +115,8 @@ int main(int, char**)
                        WndProc,
                        0L,
                        0L,
-                       GetModuleHandle(nullptr),
-                       nullptr,
+                       hInstance,
+                       LoadIconW(hInstance, L"IDI_ICON1"),
                        nullptr,
                        nullptr,
                        nullptr,

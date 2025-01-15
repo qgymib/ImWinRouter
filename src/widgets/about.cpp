@@ -1,5 +1,6 @@
 #include <imgui.h>
 #include "i18n/__init__.h"
+#include "utils/defines.h"
 #include "utils/title_builder.hpp"
 #include "__init__.hpp"
 
@@ -103,7 +104,7 @@ static void s_widget_about_show_extra()
 
 static void s_widget_about_show_window()
 {
-    ImGui::Text("ImWinRouter");
+    ImGui::Text(PROJECT_NAME);
     ImGui::TextLinkOpenURL(T->homepage,
                            "https://github.com/qgymib/ImWinRouter");
     ImGui::Separator();
