@@ -13,10 +13,10 @@ typedef struct view_adapter
 {
     view_adapter();
 
-    ImVec2                            left_pane_size;
     iwr::Memory<IP_ADAPTER_ADDRESSES> adapter_addr_buf;
     iwr::LabelText                    texts;
 
+    float  default_left_pane_width;
     size_t selected_adapter_idx;
 } view_adapter_t;
 
@@ -24,7 +24,7 @@ static view_adapter_t* s_adapter = nullptr;
 
 view_adapter::view_adapter() : adapter_addr_buf(32 * 1024)
 {
-    left_pane_size = ImVec2(200, 0);
+    default_left_pane_width = 200;
     selected_adapter_idx = 0;
 }
 
@@ -46,6 +46,9 @@ static void s_view_adapter_rebuild_cache(const IP_ADAPTER_ADDRESSES* entry)
         .Add("AdapterName:", iwr::ToString("%s", entry->AdapterName))
         .Add("Luid:", iwr::ToString("%" PRIu64, entry->Luid.Value))
         .Add("Description:", entry->Description)
+        .Add("PhysicalAddress:",
+             iwr::hex_dump(entry->PhysicalAddress, entry->PhysicalAddressLength,
+                           "-"))
         .Add("Ipv4Enabled:",
              iwr::ToString("%s", entry->Ipv4Enabled ? "true" : "false"))
         .Add("Ipv6Enabled:",
@@ -105,10 +108,34 @@ static void s_view_adapter_exit()
     s_adapter = nullptr;
 }
 
+static void s_view_adapter_draw_details()
+{
+    s_adapter->texts.Draw();
+}
+
+static void s_view_adapter_draw_identity()
+{
+}
+
+static void s_view_adapter_draw_ipv4()
+{
+}
+
+static void s_view_adapter_draw_ipv6()
+{
+}
+
+static void s_view_adapter_draw_security()
+{
+}
+
 static void s_view_adapter_draw()
 {
-    const int flags = ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX;
-    if (ImGui::BeginChild("left pane", s_adapter->left_pane_size, flags))
+    const ImVec2 region = ImGui::GetContentRegionAvail();
+    const int    flags = ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX;
+    if (ImGui::BeginChild("left pane",
+                          ImVec2(s_adapter->default_left_pane_width, region.y),
+                          flags))
     {
         size_t i = 0;
         for (const IP_ADAPTER_ADDRESSES* pAddr =
@@ -128,9 +155,30 @@ static void s_view_adapter_draw()
     ImGui::EndChild();
     ImGui::SameLine();
 
-    ImGui::BeginGroup();
-    s_adapter->texts.Draw();
-    ImGui::EndGroup();
+    const iwr::UiTab tabs[] = {
+        { "Details",  s_view_adapter_draw_details  },
+        { "Identity", s_view_adapter_draw_identity },
+        { "IPv4",     s_view_adapter_draw_ipv4     },
+        { "IPv6",     s_view_adapter_draw_ipv6     },
+        { "Security", s_view_adapter_draw_security },
+    };
+
+    if (ImGui::BeginChild("right pane", ImVec2(0, region.y)))
+    {
+        if (ImGui::BeginTabBar("adapter_tabbar"))
+        {
+            for (const auto& tab : tabs)
+            {
+                if (ImGui::BeginTabItem(tab.name))
+                {
+                    tab.draw();
+                    ImGui::EndTabItem();
+                }
+            }
+            ImGui::EndTabBar();
+        }
+    }
+    ImGui::EndChild();
 }
 
 const iwr::view_t iwr::view_adapter = {
