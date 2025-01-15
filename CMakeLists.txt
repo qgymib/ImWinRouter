@@ -35,6 +35,7 @@ add_executable(${PROJECT_NAME}
     "src/utils/string.cpp"
     "src/utils/time.cpp"
     "src/utils/title_builder.cpp"
+    "src/utils/win32.cpp"
     "src/main.cpp"
 )
 

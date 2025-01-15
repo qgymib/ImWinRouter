@@ -11,6 +11,7 @@
 #include "utils/ip.hpp"
 #include "utils/memory.hpp"
 #include "utils/title_builder.hpp"
+#include "utils/win32.hpp"
 #include "__init__.hpp"
 #include "notify.hpp"
 
@@ -69,17 +70,17 @@ static void s_win32_set_clipboard(const std::string& text)
     std::wstring wText = iwr::utf8_to_wide(text);
 
     size_t  wTextBytes = wText.size() * sizeof(wchar_t);
-    HGLOBAL hGlob = GlobalAlloc(GMEM_MOVEABLE, wTextBytes + 2);
+    HGLOBAL hGlob = GlobalAlloc(GMEM_MOVEABLE, wTextBytes + sizeof(wchar_t));
     if (hGlob == nullptr)
     {
         throw std::runtime_error("failed to allocate memory for the clipboard");
     }
 
     void* data = GlobalLock(hGlob);
-    memcpy(data, wText.c_str(), wTextBytes + 2);
+    memcpy(data, wText.c_str(), wTextBytes + sizeof(wchar_t));
     GlobalUnlock(hGlob);
 
-    if (!OpenClipboard(nullptr))
+    if (!OpenClipboard(iwr::GetWindowHandle()))
     {
         DWORD errorCode = GetLastError();
         GlobalFree(hGlob);

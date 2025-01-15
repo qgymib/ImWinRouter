@@ -6,6 +6,7 @@
 #include "i18n/__init__.h"
 #include "utils/defines.h"
 #include "utils/font.hpp"
+#include "utils/win32.hpp"
 #include "widgets/__init__.hpp"
 
 // Data
@@ -126,6 +127,7 @@ int main(int, char**)
     HWND hwnd = ::CreateWindowW(
         wc.lpszClassName, title.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT,
         CW_USEDEFAULT, 800, 600, nullptr, nullptr, wc.hInstance, nullptr);
+    iwr::SetWindowHandle(hwnd);
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
