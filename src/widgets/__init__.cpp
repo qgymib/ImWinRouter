@@ -54,7 +54,8 @@ void iwr::widget_draw()
     const int   window_flags =
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoSavedSettings;
+        ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoBringToFrontOnFocus;
     if (ImGui::Begin(window_title, nullptr, window_flags))
     {
         if (ImGui::BeginTabBar("mainview_tabbar"))
