@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <iostream>
 #include "utils/string.hpp"
 
 namespace iwr
@@ -139,88 +138,6 @@ struct IpInterface
  */
 typedef std::vector<IpInterface> IpInterfaceVec;
 
-struct AdaptersAddresses
-{
-    /**
-     * @brief The name of the adapter with which these addresses are associated.
-     *
-     * Unlike an adapter's friendly name, the adapter name specified in
-     * AdapterName is permanent and cannot be modified by the user.
-     */
-    std::string AdapterName;
-
-    /**
-     * @brief A user-friendly name for the adapter.
-     *
-     * This name appears in contexts such as the ipconfig command line program
-     * and the Connection folder.
-     */
-    std::string FriendlyName;
-
-    /**
-     * @brief The Domain Name System (DNS) suffix associated with this adapter.
-     */
-    std::string DnsSuffix;
-
-    /**
-     * @brief A description for the adapter.
-     */
-    std::string Description;
-
-    /**
-     * @brief The Media Access Control (MAC) address for the adapter.
-     *
-     * For interfaces that do not have a data-link layer, this value is empty.
-     */
-    std::string PhysicalAddress;
-
-    /**
-     * @brief The interface LUID for the adapter address.
-     */
-    uint64_t Luid;
-
-    bool Ipv4Enabled;
-
-    bool Dhcpv4Enabled;
-
-    /**
-     * @brief The IPv4 interface metric for the adapter address. This member is
-     * only applicable to an IPv4 adapter address.
-     *
-     * The actual route metric used to compute the route preferences for IPv4 is
-     * the summation of the route metric offset specified in the Metric member
-     * of the MIB_IPFORWARD_ROW2 structure and the interface metric specified in
-     * this member for IPv4.
-     */
-    uint32_t Ipv4Metric;
-
-    bool Ipv6Enabled;
-
-    /**
-     * @brief The IPv6 interface metric for the adapter address. This member is
-     * only applicable to an IPv6 adapter address.
-     *
-     * The actual route metric used to compute the route preferences for IPv6 is
-     * the summation of the route metric offset specified in the Metric member
-     * of the MIB_IPFORWARD_ROW2 structure and the interface metric specified in
-     * this member for IPv4.
-     */
-    uint32_t Ipv6Metric;
-};
-
-/**
- * @brief String converter for #AdaptersAddresses.
- * @param[in] os Out stream.
- * @param[in] item Item.
- * @return Out stream.
- */
-std::ostream& operator<<(std::ostream& os, const AdaptersAddresses& item);
-
-/**
- * @brief Vector of #AdaptersAddresses.
- */
-typedef std::vector<AdaptersAddresses> AdaptersAddressesVec;
-
 /**
  * @brief Retrieves the IP interface entries on the local computer.
  * @return Interface list.
@@ -232,13 +149,6 @@ IpInterfaceVec GetIpInterfaceVec();
  * @return Route list.
  */
 IpForwardVec GetIpForwardVec();
-
-/**
- * @brief Retrieves the addresses associated with the adapters on the local
- * computer.
- * @return Adapters address list.
- */
-AdaptersAddressesVec GetAdaptersAddressesVec();
 
 } // namespace iwr
 

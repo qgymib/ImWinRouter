@@ -66,7 +66,7 @@ static FontMap GetFontMap()
     return fontMap;
 }
 
-std::string iwr::get_default_font_path()
+std::string iwr::GetDefaultFontPath()
 {
     std::wstring defaultName = GetDefaultSystemFontName();
     FontMap      fontMap = GetFontMap();
@@ -81,7 +81,7 @@ std::string iwr::get_default_font_path()
             GetWindowsDirectoryW(windowsDir, MAX_PATH);
             std::wstring full_path =
                 std::wstring(windowsDir) + L"\\Fonts\\" + font.second;
-            return iwr::wide_to_utf8(full_path);
+            return iwr::ToString(full_path);
         }
     }
 

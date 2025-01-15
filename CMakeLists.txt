@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME} WIN32
     "src/widgets/router.cpp"
     "src/utils/exception.cpp"
     "src/utils/font.cpp"
+    "src/utils/gui.cpp"
     "src/utils/ip.cpp"
     "src/utils/string.cpp"
     "src/utils/time.cpp"

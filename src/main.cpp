@@ -1,13 +1,14 @@
+#include "utils/win32.hpp"
+#include "i18n/__init__.h"
+#include "utils/defines.h"
+#include "utils/font.hpp"
+#include "widgets/__init__.hpp"
+
 #include <imgui.h>
 #include <imgui_impl_dx9.h>
 #include <imgui_impl_win32.h>
 #include <d3d9.h>
 #include <tchar.h>
-#include "i18n/__init__.h"
-#include "utils/defines.h"
-#include "utils/font.hpp"
-#include "utils/win32.hpp"
-#include "widgets/__init__.hpp"
 
 // Data
 static LPDIRECT3D9           g_pD3D = nullptr;
@@ -107,7 +108,7 @@ static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 // Main code
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
 {
-    std::wstring title = iwr::utf8_to_wide(PROJECT_NAME);
+    std::wstring title = iwr::ToWideString(PROJECT_NAME);
     // Create application window
     // ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc),
@@ -161,7 +162,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int)
     ImGui_ImplDX9_Init(g_pd3dDevice);
 
     // Load Fonts
-    std::string fontPath = iwr::get_default_font_path();
+    std::string fontPath = iwr::GetDefaultFontPath();
     ImFont*     font =
         io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f, nullptr,
                                      io.Fonts->GetGlyphRangesChineseFull());

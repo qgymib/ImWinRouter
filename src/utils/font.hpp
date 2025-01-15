@@ -10,8 +10,8 @@ namespace iwr
  * @brief Get path of system default font.
  * @return Font file path.
  */
-std::string get_default_font_path();
+std::string GetDefaultFontPath();
 
-}
+} // namespace iwr
 
 #endif // UTILS_FONT_HPP

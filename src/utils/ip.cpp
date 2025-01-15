@@ -5,33 +5,8 @@
 #include <iphlpapi.h>
 #include <stdexcept>
 #include <nlohmann/json.hpp>
-#include "utils/iostream.hpp"
 #include "utils/memory.hpp"
-#include "utils/string.hpp"
 #include "ip.hpp"
-
-static std::string s_physical_address_to_string(const BYTE* PhysicalAddress,
-                                                DWORD PhysicalAddressLength)
-{
-    std::string result;
-
-    char buff[8];
-    for (DWORD i = 0; i < PhysicalAddressLength; i++)
-    {
-        const int v = (int)PhysicalAddress[i];
-        if (i == (PhysicalAddressLength - 1))
-        {
-            snprintf(buff, sizeof(buff), "%.2X", v);
-        }
-        else
-        {
-            snprintf(buff, sizeof(buff), "%.2X-", v);
-        }
-        result += buff;
-    }
-
-    return result;
-}
 
 iwr::IpInterfaceVec iwr::GetIpInterfaceVec()
 {
@@ -107,50 +82,6 @@ iwr::IpForwardVec iwr::GetIpForwardVec()
             static_cast<bool>(info->Loopback),
             static_cast<bool>(info->AutoconfigureAddress),
             info->Origin,
-        };
-        result.push_back(item);
-    }
-
-    return result;
-}
-
-iwr::AdaptersAddressesVec iwr::GetAdaptersAddressesVec()
-{
-    AdaptersAddressesVec result;
-
-    ULONG                             outBufLen = 16 * 1024;
-    iwr::Memory<IP_ADAPTER_ADDRESSES> buff(outBufLen);
-
-    const ULONG flags = GAA_FLAG_INCLUDE_PREFIX;
-    DWORD       dwRetVal = GetAdaptersAddresses(AF_UNSPEC, flags, nullptr,
-                                                buff.data(), &outBufLen);
-    if (dwRetVal == ERROR_BUFFER_OVERFLOW)
-    {
-        buff.resize(outBufLen);
-        dwRetVal = GetAdaptersAddresses(AF_UNSPEC, flags, nullptr, buff.data(),
-                                        &outBufLen);
-    }
-    if (dwRetVal != ERROR_SUCCESS)
-    {
-        throw std::runtime_error("GetAdaptersAddresses failed");
-    }
-
-    for (const IP_ADAPTER_ADDRESSES* pCurrAddr = buff.data(); pCurrAddr;
-         pCurrAddr = pCurrAddr->Next)
-    {
-        AdaptersAddresses item = {
-            pCurrAddr->AdapterName,
-            iwr::wide_to_utf8(pCurrAddr->FriendlyName),
-            iwr::wide_to_utf8(pCurrAddr->DnsSuffix),
-            iwr::wide_to_utf8(pCurrAddr->Description),
-            s_physical_address_to_string(pCurrAddr->PhysicalAddress,
-                                         pCurrAddr->PhysicalAddressLength),
-            pCurrAddr->Luid.Value,
-            static_cast<bool>(pCurrAddr->Ipv4Enabled),
-            static_cast<bool>(pCurrAddr->Dhcpv4Enabled),
-            static_cast<uint32_t>(pCurrAddr->Ipv4Metric),
-            static_cast<bool>(pCurrAddr->Ipv6Enabled),
-            static_cast<uint32_t>(pCurrAddr->Ipv6Metric),
         };
         result.push_back(item);
     }

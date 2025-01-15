@@ -1,19 +1,17 @@
-#include <winsock2.h>
-#include <windows.h>
-#include <netioapi.h>
-#include <iphlpapi.h>
-#include <ws2tcpip.h>
-#include <imgui.h>
-#include <sstream>
-#include <nlohmann/json.hpp>
+#include "utils/win32.hpp"
 #include "i18n/__init__.h"
 #include "utils/exception.hpp"
 #include "utils/ip.hpp"
 #include "utils/memory.hpp"
 #include "utils/title_builder.hpp"
-#include "utils/win32.hpp"
 #include "__init__.hpp"
 #include "notify.hpp"
+
+#include <iphlpapi.h>
+#include <ws2tcpip.h>
+#include <imgui.h>
+#include <sstream>
+#include <nlohmann/json.hpp>
 
 typedef struct info_item
 {
@@ -67,7 +65,7 @@ static void s_widget_debug_exit()
 
 static void s_win32_set_clipboard(const std::string& text)
 {
-    std::wstring wText = iwr::utf8_to_wide(text);
+    std::wstring wText = iwr::ToWideString(text);
 
     size_t  wTextBytes = wText.size() * sizeof(wchar_t);
     HGLOBAL hGlob = GlobalAlloc(GMEM_MOVEABLE, wTextBytes + sizeof(wchar_t));
@@ -98,53 +96,6 @@ static void s_win32_set_clipboard(const std::string& text)
     {
         throw iwr::Win32Error(GetLastError());
     }
-}
-
-static std::string to_string(const SOCKADDR_INET* addr)
-{
-    char buff[64];
-    if (addr->si_family == AF_INET)
-    {
-        inet_ntop(AF_INET, &addr->Ipv4.sin_addr, buff, sizeof(buff));
-    }
-    else
-    {
-        inet_ntop(AF_INET6, &addr->Ipv6.sin6_addr, buff, sizeof(buff));
-    }
-    return buff;
-}
-
-static std::string to_string(const SOCKET_ADDRESS* address)
-{
-    LPSOCKADDR sockaddr = address->lpSockaddr;
-    if (sockaddr == nullptr)
-    {
-        return "";
-    }
-
-    char buff[64];
-    if (sockaddr->sa_family == AF_INET)
-    {
-        SOCKADDR_IN* ipv4 = reinterpret_cast<SOCKADDR_IN*>(sockaddr);
-        inet_ntop(AF_INET, &ipv4->sin_addr, buff, sizeof(buff));
-    }
-    else
-    {
-        SOCKADDR_IN6* ipv6 = reinterpret_cast<SOCKADDR_IN6*>(sockaddr);
-        inet_ntop(AF_INET6, &ipv6->sin6_addr, buff, sizeof(buff));
-    }
-    return buff;
-}
-
-static std::string to_string(const GUID* guid)
-{
-    char guid_cstr[64];
-    snprintf(guid_cstr, sizeof(guid_cstr),
-             "%08lx-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", guid->Data1,
-             guid->Data2, guid->Data3, guid->Data4[0], guid->Data4[1],
-             guid->Data4[2], guid->Data4[3], guid->Data4[4], guid->Data4[5],
-             guid->Data4[6], guid->Data4[7]);
-    return guid_cstr;
 }
 
 template <typename T>
@@ -295,12 +246,12 @@ static std::string s_widget_debug_ip_forward()
 
         nlohmann::json destinationPrefixJson;
         destinationPrefixJson["Prefix"] =
-            to_string(&info->DestinationPrefix.Prefix);
+            iwr::ToString(&info->DestinationPrefix.Prefix);
         destinationPrefixJson["PrefixLength"] =
             info->DestinationPrefix.PrefixLength;
         item["DestinationPrefix"] = destinationPrefixJson;
 
-        item["NextHop"] = to_string(&info->NextHop);
+        item["NextHop"] = iwr::ToString(&info->NextHop);
         item["SitePrefixLength"] = info->SitePrefixLength;
         item["ValidLifetime"] = info->ValidLifetime;
         item["PreferredLifetime"] = info->PreferredLifetime;
@@ -360,7 +311,7 @@ static std::string s_widget_debug_adapter_addresses()
              pUnicastAddr; pUnicastAddr = pUnicastAddr->Next)
         {
             nlohmann::json unicastItem;
-            unicastItem["Address"] = to_string(&pUnicastAddr->Address);
+            unicastItem["Address"] = iwr::ToString(&pUnicastAddr->Address);
             unicastItem["PrefixOrigin"] = pUnicastAddr->PrefixOrigin;
             unicastItem["SuffixOrigin"] = pUnicastAddr->SuffixOrigin;
             unicastItem["DadState"] = pUnicastAddr->DadState;
@@ -379,7 +330,7 @@ static std::string s_widget_debug_adapter_addresses()
              pAnycastAddr; pAnycastAddr = pAnycastAddr->Next)
         {
             nlohmann::json anycastItem;
-            anycastItem["Address"] = to_string(&pAnycastAddr->Address);
+            anycastItem["Address"] = iwr::ToString(&pAnycastAddr->Address);
             anycastJson.push_back(anycastItem);
         }
         item["AnycastAddress"] = anycastJson;
@@ -390,7 +341,7 @@ static std::string s_widget_debug_adapter_addresses()
              multicastAddr; multicastAddr = multicastAddr->Next)
         {
             nlohmann::json multicastItem;
-            multicastItem["Address"] = to_string(&multicastAddr->Address);
+            multicastItem["Address"] = iwr::ToString(&multicastAddr->Address);
             multicastJson.push_back(multicastItem);
         }
         item["MulticastAddress"] = multicastJson;
@@ -401,14 +352,14 @@ static std::string s_widget_debug_adapter_addresses()
              dnsServerAddr; dnsServerAddr = dnsServerAddr->Next)
         {
             nlohmann::json dnsServerItem;
-            dnsServerItem["Address"] = to_string(&dnsServerAddr->Address);
+            dnsServerItem["Address"] = iwr::ToString(&dnsServerAddr->Address);
             dnsServerJson.push_back(dnsServerItem);
         }
         item["DnsServerAddress"] = dnsServerJson;
 
-        item["DnsSuffix"] = pAddr->DnsSuffix;
-        item["Description"] = pAddr->Description;
-        item["FriendlyName"] = pAddr->FriendlyName;
+        item["DnsSuffix"] = iwr::ToString(pAddr->DnsSuffix);
+        item["Description"] = iwr::ToString(pAddr->Description);
+        item["FriendlyName"] = iwr::ToString(pAddr->FriendlyName);
         item["PhysicalAddress"] = iwr::hex_dump(
             pAddr->PhysicalAddress, pAddr->PhysicalAddressLength, "-");
         item["DdnsEnabled"] = static_cast<bool>(pAddr->DdnsEnabled);
@@ -437,7 +388,7 @@ static std::string s_widget_debug_adapter_addresses()
              pPrefix = pPrefix->Next)
         {
             nlohmann::json prefixItem;
-            prefixItem["Address"] = to_string(&pPrefix->Address);
+            prefixItem["Address"] = iwr::ToString(&pPrefix->Address);
             prefixItem["PrefixLength"] = pPrefix->PrefixLength;
             prefixJson.push_back(prefixItem);
         }
@@ -452,7 +403,7 @@ static std::string s_widget_debug_adapter_addresses()
              pWinServerAddr; pWinServerAddr = pWinServerAddr->Next)
         {
             nlohmann::json winServerItem;
-            winServerItem["Address"] = to_string(&pWinServerAddr->Address);
+            winServerItem["Address"] = iwr::ToString(&pWinServerAddr->Address);
             winServerJson.push_back(winServerItem);
         }
         item["WinServerAddress"] = winServerJson;
@@ -463,7 +414,7 @@ static std::string s_widget_debug_adapter_addresses()
              pGatewayAddr; pGatewayAddr = pGatewayAddr->Next)
         {
             nlohmann::json gatewayItem;
-            gatewayItem["Address"] = to_string(&pGatewayAddr->Address);
+            gatewayItem["Address"] = iwr::ToString(&pGatewayAddr->Address);
             gatewayJson.push_back(gatewayItem);
         }
         item["GatewayAddress"] = gatewayJson;
@@ -471,12 +422,12 @@ static std::string s_widget_debug_adapter_addresses()
         item["Ipv4Metric"] = pAddr->Ipv4Metric;
         item["Ipv6Metric"] = pAddr->Ipv6Metric;
         item["Luid"] = pAddr->Luid.Value;
-        item["Dhcpv4Server"] = to_string(&pAddr->Dhcpv4Server);
+        item["Dhcpv4Server"] = iwr::ToString(&pAddr->Dhcpv4Server);
         item["CompartmentId"] = pAddr->CompartmentId;
-        item["NetworkGuid"] = to_string(&pAddr->NetworkGuid);
+        item["NetworkGuid"] = iwr::ToString(&pAddr->NetworkGuid);
         item["ConnectionType"] = pAddr->ConnectionType;
         item["TunnelType"] = pAddr->TunnelType;
-        item["Dhcpv6Server"] = to_string(&pAddr->Dhcpv6Server);
+        item["Dhcpv6Server"] = iwr::ToString(&pAddr->Dhcpv6Server);
         item["Dhcpv6ClientDuid"] = iwr::hex_dump(
             pAddr->Dhcpv6ClientDuid, pAddr->Dhcpv6ClientDuidLength, "-");
         item["Dhcpv6Iaid"] = pAddr->Dhcpv6Iaid;

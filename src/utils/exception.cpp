@@ -17,7 +17,7 @@ iwr::Win32Error::Win32Error(DWORD errorCode, const std::string& msg)
         abort();
     }
 
-    std::string errMsg = iwr::wide_to_utf8(msgBuf);
+    std::string errMsg = iwr::ToString(msgBuf);
     LocalFree(msgBuf);
 
     if (!msg.empty())

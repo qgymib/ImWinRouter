@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-std::string iwr::wide_to_utf8(const wchar_t* src)
+std::string iwr::ToString(const wchar_t* src)
 {
     std::string ret;
 
@@ -32,12 +32,12 @@ std::string iwr::wide_to_utf8(const wchar_t* src)
     return ret;
 }
 
-std::string iwr::wide_to_utf8(const std::wstring& src)
+std::string iwr::ToString(const std::wstring& src)
 {
-    return iwr::wide_to_utf8(src.c_str());
+    return iwr::ToString(src.c_str());
 }
 
-std::wstring iwr::utf8_to_wide(const char* src)
+std::wstring iwr::ToWideString(const char* src)
 {
     int size_needed = MultiByteToWideChar(CP_UTF8, 0, src, -1, nullptr, 0);
     if (size_needed == 0)
@@ -55,9 +55,27 @@ std::wstring iwr::utf8_to_wide(const char* src)
     return result;
 }
 
-std::wstring iwr::utf8_to_wide(const std::string& src)
+std::wstring iwr::ToWideString(const std::string& src)
 {
-    return iwr::utf8_to_wide(src.c_str());
+    return iwr::ToWideString(src.c_str());
+}
+
+std::string iwr::ToString(const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+    va_list ap2;
+    va_copy(ap2, ap);
+
+    int len = vsnprintf(nullptr, 0, fmt, ap2);
+    va_end(ap2);
+
+    std::string result(len + 1, '\0');
+    vsnprintf(&result[0], len + 1, fmt, ap);
+    va_end(ap);
+
+    return result;
 }
 
 std::string iwr::hex_dump_type(const void* data, size_t nb, size_t block_sz,

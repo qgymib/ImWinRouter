@@ -11,28 +11,36 @@ namespace iwr
  * @param[in] src   Wide string.
  * @return UTF-8 string.
  */
-std::string wide_to_utf8(const wchar_t* src);
+std::string ToString(const wchar_t* src);
 
 /**
  * @brief Convert wide string to UTF-8 string.
  * @param[in] src   Wide string.
  * @return UTF-8 string.
  */
-std::string wide_to_utf8(const std::wstring& src);
+std::string ToString(const std::wstring& src);
+
+/**
+ * @brief Format string.
+ * @param[in] fmt String format.
+ * @param[in] ... Argument list.
+ * @return String.
+ */
+std::string ToString(const char* fmt, ...);
 
 /**
  * @brief Convert UTF-8 string into wide string.
  * @param[in] src   UTF-8 string.
  * @return Wide string.
  */
-std::wstring utf8_to_wide(const char* src);
+std::wstring ToWideString(const char* src);
 
 /**
  * @brief Convert UTF-8 string into wide string.
  * @param[in] src   UTF-8 string.
  * @return Wide string.
  */
-std::wstring utf8_to_wide(const std::string& src);
+std::wstring ToWideString(const std::string& src);
 
 /**
  * @brief Convert any data into hex string.
