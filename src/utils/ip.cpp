@@ -33,73 +33,12 @@ static std::string s_physical_address_to_string(const BYTE* PhysicalAddress,
     return result;
 }
 
-std::ostream& iwr::operator<<(std::ostream& os, const IpForward& item)
-{
-    nlohmann::json json;
-    json["Family"] = item.Family;
-    json["Destination"] = item.Destination;
-    json["PrefixLength"] = item.PrefixLength;
-    json["NextHop"] = item.NextHop;
-    json["InterfaceLuid"] = item.InterfaceLuid;
-    json["InterfaceIndex"] = item.InterfaceIndex;
-    json["Metric"] = item.Metric;
-    json["Loopback"] = item.Loopback;
-    json["AutoconfigureAddress"] = item.AutoconfigureAddress;
-    json["Origin"] = item.Origin;
-    return os << json.dump();
-}
-
-std::ostream& iwr::operator<<(std::ostream& os, const IpForwardVec& vec)
-{
-    return iwr::ostream<IpForward>(os, vec);
-}
-
-std::ostream& iwr::operator<<(std::ostream& os, const IpInterface& item)
-{
-    nlohmann::json json;
-    json["Family"] = item.Family;
-    json["InterfaceLuid"] = item.InterfaceLuid;
-    json["InterfaceIndex"] = item.InterfaceIndex;
-    json["LinkLocalAddressBehavior"] = item.LinkLocalAddressBehavior;
-    json["Metric"] = item.Metric;
-    json["Connected"] = item.Connected;
-    json["DisableDefaultRoutes"] = item.DisableDefaultRoutes;
-    return os << json.dump();
-}
-
-std::ostream& iwr::operator<<(std::ostream& os, const iwr::IpInterfaceVec& vec)
-{
-    return iwr::ostream<IpInterface>(os, vec);
-}
-
-std::ostream& iwr::operator<<(std::ostream& os, const AdaptersAddresses& item)
-{
-    nlohmann::json json;
-    json["AdapterName"] = item.AdapterName;
-    json["FriendlyName"] = item.FriendlyName;
-    json["DnsSuffix"] = item.DnsSuffix;
-    json["Description"] = item.Description;
-    json["PhysicalAddress"] = item.PhysicalAddress;
-    json["Luid"] = item.Luid;
-    json["Ipv4Enabled"] = item.Ipv4Enabled;
-    json["Dhcpv4Enabled"] = item.Dhcpv4Enabled;
-    json["Ipv4Metric"] = item.Ipv4Metric;
-    json["Ipv6Enabled"] = item.Ipv6Enabled;
-    json["Ipv6Metric"] = item.Ipv6Metric;
-    return os << json.dump();
-}
-
-std::ostream& iwr::operator<<(std::ostream& os, const AdaptersAddressesVec& vec)
-{
-    return iwr::ostream<AdaptersAddresses>(os, vec);
-}
-
 iwr::IpInterfaceVec iwr::GetIpInterfaceVec()
 {
     IpInterfaceVec result;
 
-    MIB_IPINTERFACE_TABLE* pipTable = nullptr;
-    DWORD                  ret = GetIpInterfaceTable(AF_UNSPEC, &pipTable);
+    iwr::Pointer<MIB_IPINTERFACE_TABLE> pipTable(FreeMibTable);
+    DWORD ret = GetIpInterfaceTable(AF_UNSPEC, &pipTable);
     if (ret != NO_ERROR)
     {
         throw std::runtime_error("GetIpInterfaceTable failed");
@@ -107,20 +46,18 @@ iwr::IpInterfaceVec iwr::GetIpInterfaceVec()
 
     for (size_t i = 0; i < pipTable->NumEntries; i++)
     {
-        MIB_IPINTERFACE_ROW* entry = &pipTable->Table[i];
-        IpInterface          item = {
+        const MIB_IPINTERFACE_ROW* entry = &pipTable->Table[i];
+        IpInterface                item = {
             entry->Family,
             entry->InterfaceLuid.Value,
             entry->InterfaceIndex,
             entry->LinkLocalAddressBehavior,
-            entry->Metric,
+            static_cast<uint32_t>(entry->Metric),
             static_cast<bool>(entry->Connected),
             static_cast<bool>(entry->DisableDefaultRoutes),
         };
         result.push_back(item);
     }
-
-    FreeMibTable(pipTable);
 
     return result;
 }
@@ -129,8 +66,8 @@ iwr::IpForwardVec iwr::GetIpForwardVec()
 {
     IpForwardVec result;
 
-    MIB_IPFORWARD_TABLE2* pIpForwardTable = nullptr;
-    DWORD                 ret = GetIpForwardTable2(AF_UNSPEC, &pIpForwardTable);
+    iwr::Pointer<MIB_IPFORWARD_TABLE2> pIpForwardTable(FreeMibTable);
+    DWORD ret = GetIpForwardTable2(AF_UNSPEC, &pIpForwardTable);
     if (ret != NO_ERROR)
     {
         throw std::runtime_error("GetIpForwardTable2 failed");
@@ -139,7 +76,7 @@ iwr::IpForwardVec iwr::GetIpForwardVec()
     char dest[INET6_ADDRSTRLEN], gateway[INET6_ADDRSTRLEN];
     for (size_t i = 0; i < pIpForwardTable->NumEntries; i++)
     {
-        MIB_IPFORWARD_ROW2* info = &pIpForwardTable->Table[i];
+        const MIB_IPFORWARD_ROW2* info = &pIpForwardTable->Table[i];
         if (info->DestinationPrefix.Prefix.si_family == AF_INET)
         {
             inet_ntop(AF_INET, &info->DestinationPrefix.Prefix.Ipv4.sin_addr,
@@ -174,7 +111,6 @@ iwr::IpForwardVec iwr::GetIpForwardVec()
         result.push_back(item);
     }
 
-    FreeMibTable(pIpForwardTable);
     return result;
 }
 

@@ -2,7 +2,9 @@
 #include <cassert>
 #include "string.hpp"
 
-std::string iwr::wide_to_utf8(const WCHAR* src)
+#include <cstdint>
+
+std::string iwr::wide_to_utf8(const wchar_t* src)
 {
     std::string ret;
 
@@ -56,4 +58,30 @@ std::wstring iwr::utf8_to_wide(const char* src)
 std::wstring iwr::utf8_to_wide(const std::string& src)
 {
     return iwr::utf8_to_wide(src.c_str());
+}
+
+std::string iwr::hex_dump_type(const void* data, size_t nb, size_t block_sz,
+                               const char* delimiter)
+{
+    std::string    result;
+    const uint8_t* basis = static_cast<const uint8_t*>(data);
+
+    for (size_t idx = 0; idx < nb; idx++)
+    {
+        for (size_t i = 0; i < block_sz; i++)
+        {
+            char buff[8];
+            snprintf(buff, sizeof(buff), "%.2X", *basis);
+
+            basis++;
+            result += buff;
+        }
+
+        if (idx != nb - 1)
+        {
+            result += delimiter;
+        }
+    }
+
+    return result;
 }

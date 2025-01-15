@@ -30,7 +30,7 @@ public:
         free(this->m_data);
     }
 
-    Memory(const Memory &other)
+    Memory(const Memory& other)
     {
         this->m_data = nullptr;
         this->m_size = 0;
@@ -60,7 +60,7 @@ public:
         this->m_size = size;
     }
 
-    void copy(const Memory &other)
+    void copy(const Memory& other)
     {
         if (this->m_data != nullptr)
         {
@@ -78,6 +78,53 @@ public:
 private:
     void*  m_data;
     size_t m_size;
+};
+
+template <typename T>
+class Pointer
+{
+public:
+    typedef void (*ReleaseFn)(T*);
+    typedef void (*VoidReleaseFn)(void*);
+
+public:
+    explicit Pointer(ReleaseFn f)
+    {
+        m_ptr = nullptr;
+        m_fn = f;
+    }
+    explicit Pointer(VoidReleaseFn f)
+    {
+        m_ptr = nullptr;
+        m_fn = f;
+    }
+
+    virtual ~Pointer()
+    {
+        if (m_ptr != nullptr)
+        {
+            m_fn(m_ptr);
+        }
+    }
+
+public:
+    explicit Pointer(const Pointer& other) = delete;
+    Pointer& operator=(const Pointer& other) = delete;
+
+public:
+    T* operator->()
+    {
+        return m_ptr;
+    }
+
+    T** operator&()
+    {
+        return &m_ptr;
+    }
+
+private:
+    T*            m_ptr;
+    VoidReleaseFn m_fn;
 };
 
 } // namespace iwr

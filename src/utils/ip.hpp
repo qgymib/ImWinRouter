@@ -83,25 +83,9 @@ struct IpForward
 };
 
 /**
- * @brief String converter for #IpForward.
- * @param[in] os Out stream.
- * @param[in] item Item.
- * @return Out stream.
- */
-std::ostream& operator<<(std::ostream& os, const IpForward& item);
-
-/**
  * @brief Vector of #IpForward.
  */
 typedef std::vector<IpForward> IpForwardVec;
-
-/**
- * @brief String converter for #IpForwardVec.
- * @param[in] os Out stream.
- * @param[in] vec Item.
- * @return Out stream.
- */
-std::ostream& operator<<(std::ostream& os, const IpForwardVec& vec);
 
 struct IpInterface
 {
@@ -151,25 +135,9 @@ struct IpInterface
 };
 
 /**
- * @brief String converter for #IpInterface.
- * @param[in] os Out stream.
- * @param[in] item Item.
- * @return Out stream.
- */
-std::ostream& operator<<(std::ostream& os, const IpInterface& item);
-
-/**
  * @brief Vector of #IpInterface.
  */
 typedef std::vector<IpInterface> IpInterfaceVec;
-
-/**
- * @brief String converter for #IpInterface.
- * @param[in] os Out stream.
- * @param[in] vec Item.
- * @return Out stream.
- */
-std::ostream& operator<<(std::ostream& os, const IpInterfaceVec& vec);
 
 struct AdaptersAddresses
 {
@@ -252,14 +220,6 @@ std::ostream& operator<<(std::ostream& os, const AdaptersAddresses& item);
  * @brief Vector of #AdaptersAddresses.
  */
 typedef std::vector<AdaptersAddresses> AdaptersAddressesVec;
-
-/**
- * @brief String converter for #AdaptersAddressesVec.
- * @param[in] os Out stream.
- * @param[in] vec Item.
- * @return Out stream.
- */
-std::ostream& operator<<(std::ostream& os, const AdaptersAddressesVec& vec);
 
 /**
  * @brief Retrieves the IP interface entries on the local computer.
